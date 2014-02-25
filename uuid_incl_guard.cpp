@@ -1,6 +1,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/xpressive/xpressive.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -8,6 +9,7 @@
 
 using namespace std;
 using namespace boost::uuids;
+using namespace boost::xpressive;
 
 /*
  * TODO:
@@ -35,17 +37,26 @@ int main(int argCount, char const* args[])
       fstream file(fileName);
       string content((istreambuf_iterator<char>(file)),
 		     istreambuf_iterator<char>());
-      string const id = to_string(random_generator()());
-      content.insert(0, copyright +
-		     string("#ifndef ")
-		     .append(id)
-		     .append("\n#define ")
-		     .append(id)
-		     .append("\n\n"));
-      content.append("\n#endif\n");
-      cout << content << '\n';
-      file.seekg(0);
-      file << content;
+      sregex const reIfndef = as_xpr("#ifndef ") >> +_w;
+      smatch what;
+      if(regex_match(content, what, reIfndef))
+	{
+	  cout << "what[0] = " << what[0] << '\n';
+	}
+      else
+	{
+	  string const id = to_string(random_generator()());
+	  content.insert(0, copyright +
+			 string("#ifndef ")
+			 .append(id)
+			 .append("\n#define ")
+			 .append(id)
+			 .append("\n\n"));
+	  content.append("\n#endif\n");
+	  cout << content << '\n';
+	  file.seekg(0);
+	  file << content;
+	}
     }
   else
     {
