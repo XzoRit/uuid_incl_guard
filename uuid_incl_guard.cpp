@@ -37,6 +37,8 @@ int main(int argCount, char const* args[])
 		     .append("\n\n"));
       content.append("\n#endif\n");
       cout << content << '\n';
+      file.seekg(0);
+      file << content;
     }
   else
     {
