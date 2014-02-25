@@ -19,6 +19,12 @@ using namespace boost::uuids;
  * - write uuid include guard back to file
  * - accept parameter to write include guard in a different file/console
  */
+
+std::string const copyright =
+  "/*\n"
+  " * Copyright <Company>\n"
+  " */\n\n";
+
 int main(int argCount, char const* args[])
 {
   cout << "uuid_incl_guard\n";
@@ -30,7 +36,8 @@ int main(int argCount, char const* args[])
       string content((istreambuf_iterator<char>(file)),
 		     istreambuf_iterator<char>());
       string const id = to_string(random_generator()());
-      content.insert(0, string("#ifndef ")
+      content.insert(0, copyright +
+		     string("#ifndef ")
 		     .append(id)
 		     .append("\n#define ")
 		     .append(id)
