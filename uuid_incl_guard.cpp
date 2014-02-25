@@ -23,15 +23,20 @@ int main(int argCount, char const* args[])
 {
   cout << "uuid_incl_guard\n";
 
-  string fileName;
   if(argCount >= 2)
     {
-      fileName = args[1];
+      string const fileName = args[1];
       fstream file(fileName);
       string content((istreambuf_iterator<char>(file)),
 		     istreambuf_iterator<char>());
-      content.insert(0, string("#ifndef ").append(to_string(id)).append("\n#define ").append(to_string(id)).append("\n\n"));
+      string const id = to_string(random_generator()());
+      content.insert(0, string("#ifndef ")
+		     .append(id)
+		     .append("\n#define ")
+		     .append(id)
+		     .append("\n\n"));
       content.append("\n#endif\n");
+      cout << content << '\n';
     }
   else
     {
