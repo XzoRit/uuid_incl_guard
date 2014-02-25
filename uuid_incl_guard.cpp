@@ -27,21 +27,16 @@ int main(int argCount, char const* args[])
   if(argCount >= 2)
     {
       fileName = args[1];
+      fstream file(fileName);
+      string content((istreambuf_iterator<char>(file)),
+		     istreambuf_iterator<char>());
+      content.insert(0, string("#ifndef ").append(to_string(id)).append("\n#define ").append(to_string(id)).append("\n\n"));
+      content.append("\n#endif\n");
     }
   else
     {
-      return 1;
+      cout << random_generator()() << '\n';
     }
 
-  uuid id = random_generator()();
-  cout << id << '\n';
-
-  fstream file(fileName);
-  string content((istreambuf_iterator<char>(file)),
-		 istreambuf_iterator<char>());
-  cout << content << '\n';
-  content.insert(0, string("#ifndef ").append(to_string(id)).append("\n#define ").append(to_string(id)).append("\n\n"));
-  content.append("\n#endif\n");
-  cout << content << '\n';
   return 0;
 }
