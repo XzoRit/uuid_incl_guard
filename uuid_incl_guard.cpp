@@ -37,9 +37,9 @@ int main(int argCount, char const* args[])
       fstream file(fileName);
       string content((istreambuf_iterator<char>(file)),
 		     istreambuf_iterator<char>());
-      sregex const reIfndef = as_xpr("#ifndef ") >> +_w;
+      sregex const reIfndef = as_xpr("#ifndef ") >> +(_w | punct);
       smatch what;
-      if(regex_match(content, what, reIfndef))
+      if(regex_search(content, what, reIfndef))
 	{
 	  cout << "what[0] = " << what[0] << '\n';
 	}
