@@ -2,6 +2,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/xpressive/xpressive.hpp>
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -9,7 +10,8 @@
 
 using namespace std;
 using namespace boost::uuids;
-using namespace boost::xpressive;
+namespace xp = boost::xpressive;
+namespace po = boost::program_options;
 
 /*
  * TODO:
@@ -31,15 +33,29 @@ int main(int argCount, char const* args[])
 {
   cout << "uuid_incl_guard\n";
 
+  po::options_description desc("allowed options");
+  desc.add_options()
+    ("help", "produce help message")
+    ("in_files", po::value<vector<string> >(), "place include guards in this file");
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(argCount, args, desc), vm);
+  po::notify(vm);
+
+  if(vm.count("help"))
+    {
+      cout << desc << '\n';
+      return 0;
+    }
   if(argCount >= 2)
     {
       string const fileName = args[1];
       fstream file(fileName);
       string content((istreambuf_iterator<char>(file)),
 		     istreambuf_iterator<char>());
-      sregex const reIfndef = as_xpr("#ifndef ") >> +_w;
-      smatch what;
-      if(regex_match(content, what, reIfndef))
+      xp::sregex const reIfndef = xp::as_xpr("#ifndef ") >> +xp::_w;
+      xp::smatch what;
+      if(xp::regex_search(content, what, reIfndef))
 	{
 	  cout << "what[0] = " << what[0] << '\n';
 	}
