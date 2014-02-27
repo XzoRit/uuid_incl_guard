@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <streambuf>
+#include <algorithm>
 
 using namespace std;
 using namespace boost::uuids;
@@ -61,7 +62,8 @@ int main(int argCount, char const* args[])
 	}
       else
 	{
-	  string const id = to_string(random_generator()());
+  	  string id = string("INCL_") + to_string(random_generator()());
+          replace(id.begin(), id.end(), '-', '_');
 	  content.insert(0, copyright +
 			 string("#ifndef ")
 			 .append(id)
