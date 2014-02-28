@@ -3,6 +3,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -10,7 +11,9 @@
 #include <algorithm>
 
 using namespace std;
+using namespace boost;
 using namespace boost::uuids;
+
 namespace xp = boost::xpressive;
 namespace po = boost::program_options;
 
@@ -25,7 +28,7 @@ namespace po = boost::program_options;
  * - accept parameter to write include guard in a different file/console
  */
 
-std::string const copyright =
+std::string copyright =
   "/*\n"
   " * Copyright <Company>\n"
   " */\n\n";
@@ -37,6 +40,7 @@ int main(int argCount, char const* args[])
   po::options_description desc("allowed options");
   desc.add_options()
     ("help", "produce help message")
+    ("company", po::value<string>(), "name of company for copyright notice")
     ("in_files", po::value<vector<string> >(), "place include guards in this file");
 
   po::variables_map vm;
@@ -48,6 +52,16 @@ int main(int argCount, char const* args[])
       cout << desc << '\n';
       return 0;
     }
+  if(vm.count("company"))
+    {
+      boost::replace_first(copyright, "<Company>", vm["company"].as<string>());
+    }
+  else
+    {
+      cout << desc << '\n';
+      return 0;
+    }
+
   if(argCount >= 2)
     {
       string const fileName = args[1];
