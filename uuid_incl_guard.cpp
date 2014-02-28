@@ -43,9 +43,10 @@ string inclGuard =
 
 string const endIf = "\n#endif\n";
 
-bool hasCopyrightNotice()
+bool hasCopyrightNotice(string const& content)
 {
-	return false;
+	smatch what;
+	return regex_search(content, what, sregex(as_xpr("Copyright")));
 }
 
 typedef boost::optional<string> MaybeInclGuard;
@@ -98,10 +99,6 @@ int main(int argCount, char const* args[])
 			string content((istreambuf_iterator<char>(file)),
 				istreambuf_iterator<char>());
 			file.seekg(0);
-			if (hasCopyrightNotice())
-			{
-				copyright = "";
-			}
 
 			string id = string("INCL_") + to_string(random_generator()());
 			replace(id.begin(), id.end(), '-', '_');
@@ -114,9 +111,15 @@ int main(int argCount, char const* args[])
 			else
 			{
 				replace_all(inclGuard, "<Id>", id);
-				content.insert(0, copyright + inclGuard);
-				content.append(endIf);
 			}
+
+			if (hasCopyrightNotice(content))
+			{
+				copyright = "";
+			}
+
+			content.insert(0, copyright + inclGuard);
+			content.append(endIf);
 			cout << content << '\n';
 			file << content;
 			file.flush();
