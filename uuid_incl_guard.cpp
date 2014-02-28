@@ -48,9 +48,9 @@ bool hasCopyrightNotice();
 typedef boost::optional<string> MaybeInclGuard;
 MaybeInclGuard hasInclGuard(string const& content)
 {
-	sregex const reIfndef = as_xpr("#ifndef ") >> (s1 = +_w);
+	sregex const reIfndef = as_xpr("#ifndef") >> +_s >> (s1 = +_w);
 	smatch what;
-	if (regex_match(content, what, reIfndef))
+	if (regex_search(content, what, reIfndef))
 		return boost::make_optional(what[1].str());
 	else
 		return MaybeInclGuard();
@@ -85,8 +85,7 @@ int main(int argCount, char const* args[])
 		string content((istreambuf_iterator<char>(file)),
 			istreambuf_iterator<char>());
 		file.seekg(0);
-		MaybeInclGuard guard = hasInclGuard(content);
-		if (guard)
+		if (MaybeInclGuard guard = hasInclGuard(content))
 		{
 			cout << guard.get() << '\n';
 			replace_all(content, guard.get(), id);
