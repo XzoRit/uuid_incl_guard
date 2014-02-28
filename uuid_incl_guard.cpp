@@ -29,21 +29,24 @@ namespace po = boost::program_options;
 * - accept parameter to write include guard in a different file/console
 */
 
-string const copyright =
+string copyright =
 "/*\n"
 " * Copyright (c) <Company>\n"
 " * All rights reserved. Company confidential.\n"
 " */\n"
 "\n";
 
-string const inclGuard =
+string inclGuard =
 "#ifndef <Id>\n"
 "#define <Id>\n"
 "\n";
 
 string const endIf = "\n#endif\n";
 
-bool hasCopyrightNotice();
+bool hasCopyrightNotice()
+{
+	return false;
+}
 
 typedef boost::optional<string> MaybeInclGuard;
 MaybeInclGuard hasInclGuard(string const& content)
@@ -63,6 +66,7 @@ int main(int argCount, char const* args[])
 	po::options_description desc("allowed options");
 	desc.add_options()
 		("help", "produce help message")
+		("company", po::value<string>(), "name of company to be placed in copyright notice")
 		("in_files", po::value<vector<string> >(), "place include guards in this file");
 
 	po::variables_map vm;
@@ -75,34 +79,48 @@ int main(int argCount, char const* args[])
 		return 0;
 	}
 
-	string id = string("INCL_") + to_string(random_generator()());
-	replace(id.begin(), id.end(), '-', '_');
-
-	if (argCount >= 2)
+	if (vm.count("company"))
 	{
-		string const fileName = args[1];
-		fstream file(fileName);
-		string content((istreambuf_iterator<char>(file)),
-			istreambuf_iterator<char>());
-		file.seekg(0);
-		if (MaybeInclGuard guard = hasInclGuard(content))
-		{
-			cout << guard.get() << '\n';
-			replace_all(content, guard.get(), id);
-		}
-		else
-		{
-			string const inclGuardWithUuid = replace_all_copy(inclGuard, "<Id>", id);
-			content.insert(0, copyright + inclGuardWithUuid);
-			content.append(endIf);
-		}
-		cout << content << '\n';
-		file << content;
-		file.flush();
+		replace_first(copyright, "<Company>", vm["company"].as<string>());
 	}
 	else
 	{
-		cout << id << '\n';
+		cout << desc << '\n';
+		return 0;
+	}
+
+	if (vm.count("in_files"))
+	{
+		vector<string> files = vm["in_files"].as<vector<string> >();
+		for (auto fileName = files.cbegin(); fileName != files.end(); ++fileName)
+		{
+			fstream file(*fileName);
+			string content((istreambuf_iterator<char>(file)),
+				istreambuf_iterator<char>());
+			file.seekg(0);
+			if (hasCopyrightNotice())
+			{
+				copyright = "";
+			}
+
+			string id = string("INCL_") + to_string(random_generator()());
+			replace(id.begin(), id.end(), '-', '_');
+
+			if (MaybeInclGuard guard = hasInclGuard(content))
+			{
+				cout << guard.get() << '\n';
+				replace_all(content, guard.get(), id);
+			}
+			else
+			{
+				replace_all(inclGuard, "<Id>", id);
+				content.insert(0, copyright + inclGuard);
+				content.append(endIf);
+			}
+			cout << content << '\n';
+			file << content;
+			file.flush();
+		}
 	}
 
 	return 0;
