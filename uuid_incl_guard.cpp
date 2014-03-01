@@ -2,6 +2,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/xpressive/xpressive.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/optional.hpp>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 #include <iostream>
@@ -31,7 +33,32 @@ namespace po = boost::program_options;
 std::string copyright =
   "/*\n"
   " * Copyright <Company>\n"
+  " * All rights reserved. Company confidential.\n"
   " */\n\n";
+
+string inclGuard = 
+  "#ifndef <Id>\n"   
+  "#define <Id>\n"   
+  "\n";
+
+string const endIf = "\n#endif\n";
+
+bool hasCopyrightNotice(string const& content)
+{
+  xp::smatch what;
+  return xp::regex_search(content, what, xp::sregex(xp::as_xpr("Copyright")));
+}
+
+typedef boost::optional<string> MaybeInclGuard;
+MaybeInclGuard hasInclGuard(string const& content)
+{
+  xp::sregex const reIfndef = xp::as_xpr("#ifndef") >> +xp::_s >> (xp::s1 = +xp::_w);
+  xp::smatch what;
+  if (xp::regex_search(content, what, reIfndef))
+    return boost::make_optional(what[1].str());
+  else
+    return MaybeInclGuard();
+}
 
 int main(int argCount, char const* args[])
 {
@@ -62,38 +89,41 @@ int main(int argCount, char const* args[])
       return 0;
     }
 
-  if(argCount >= 2)
-    {
-      string const fileName = args[1];
-      fstream file(fileName);
-      string content((istreambuf_iterator<char>(file)),
-		     istreambuf_iterator<char>());
-      xp::sregex const reIfndef = xp::as_xpr("#ifndef ") >> +xp::_w;
-      xp::smatch what;
-      if(xp::regex_search(content, what, reIfndef))
+      if (vm.count("in_files"))
 	{
-	  cout << "what[0] = " << what[0] << '\n';
-	}
-      else
-	{
-  	  string id = string("INCL_") + to_string(random_generator()());
-          replace(id.begin(), id.end(), '-', '_');
-	  content.insert(0, copyright +
-			 string("#ifndef ")
-			 .append(id)
-			 .append("\n#define ")
-			 .append(id)
-			 .append("\n\n"));
-	  content.append("\n#endif\n");
-	  cout << content << '\n';
-	  file.seekg(0);
-	  file << content;
-	}
-    }
-  else
-    {
-      cout << random_generator()() << '\n';
-    }
+	  vector<string> files = vm["in_files"].as<vector<string> >();
+	  for (vector<string>::const_iterator fileName = files.cbegin(); fileName != files.end(); ++fileName)
+	    {
+	      fstream file(*fileName);
+	      string content((istreambuf_iterator<char>(file)),
+			     istreambuf_iterator<char>());
+	      file.seekg(0);
 
-  return 0;
-}
+	      string id = string("INCL_") + to_string(random_generator()());
+	      replace(id.begin(), id.end(), '-', '_');
+
+	      if (MaybeInclGuard guard = hasInclGuard(content))
+		{
+		  cout << guard.get() << '\n';
+		  replace_all(content, guard.get(), id);
+		}
+	      else
+		{
+		  replace_all(inclGuard, "<Id>", id);
+		}
+
+	      if (hasCopyrightNotice(content))
+		{
+		  copyright = "";
+		}
+
+	      content.insert(0, copyright + inclGuard);
+	      content.append(endIf);
+	      cout << content << '\n';
+	      file << content;
+	      file.flush();
+	    }
+	}
+
+      return 0;
+    }
