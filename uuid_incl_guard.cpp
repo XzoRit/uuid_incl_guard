@@ -41,7 +41,7 @@ string inclGuard =
   "#define <Id>\n"   
   "\n";
 
-string const endIf = "\n#endif\n";
+string endIf = "\n#endif\n";
 
 bool hasCopyrightNotice(string const& content)
 {
@@ -106,6 +106,8 @@ int main(int argCount, char const* args[])
 		{
 		  cout << guard.get() << '\n';
 		  replace_all(content, guard.get(), id);
+		  inclGuard = "";
+		  endIf = "";
 		}
 	      else
 		{
