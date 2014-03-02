@@ -36,12 +36,12 @@ std::string copyright =
   " * All rights reserved. Company confidential.\n"
   " */\n\n";
 
-string inclGuard = 
+string const inclGuard = 
   "#ifndef <Id>\n"   
   "#define <Id>\n"   
   "\n";
 
-string endIf = "\n#endif\n";
+string const endIf = "\n#endif\n";
 
 bool hasCopyrightNotice(string const& content)
 {
@@ -100,13 +100,13 @@ int main(int argCount, char const* args[])
 	  if (MaybeInclGuard guard = hasInclGuard(content))
 	    {
 	      replace_all(content, guard.get(), inclGuardId);
-	      cout << (*fileName) << ": changing include guard from " << guard.get() << " to " << inclGuardId << '\n';
-	      inclGuard = "";
-	      endIf = "";
+	      cout << (*fileName) << ": changed include guard from " << guard.get() << " to " << inclGuardId << '\n';
 	    }
 	  else
 	    {
-	      replace_all(inclGuard, "<Id>", inclGuardId);
+	      string const newInclGuard = replace_all_copy(inclGuard, "<Id>", inclGuardId);
+	      content.insert(0, newInclGuard);
+	      content.append(endIf);
 	      cout << (*fileName) << ": gets include guard " << inclGuardId << '\n';
 	    }
 
@@ -128,8 +128,7 @@ int main(int argCount, char const* args[])
 		}
 	    }
 
-	  content.insert(0, copyright + inclGuard);
-	  content.append(endIf);
+	  content.insert(0, copyright);
 	  cout << content << '\n';
 	  file << content;
 	  file.flush();
