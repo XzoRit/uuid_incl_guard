@@ -79,53 +79,55 @@ int main(int argCount, char const* args[])
       cout << desc << '\n';
       return 0;
     }
-  if(vm.count("company"))
+  if (vm.count("in_files"))
     {
-      boost::replace_first(copyright, "<Company>", vm["company"].as<string>());
-    }
-  else
-    {
-      cout << desc << '\n';
-      return 0;
-    }
-
-      if (vm.count("in_files"))
+      vector<string> files = vm["in_files"].as<vector<string> >();
+      for (vector<string>::const_iterator fileName = files.cbegin(); fileName != files.end(); ++fileName)
 	{
-	  vector<string> files = vm["in_files"].as<vector<string> >();
-	  for (vector<string>::const_iterator fileName = files.cbegin(); fileName != files.end(); ++fileName)
+	  fstream file(*fileName);
+	  string content((istreambuf_iterator<char>(file)),
+			 istreambuf_iterator<char>());
+	  file.seekg(0);
+
+	  string id = string("INCL_") + to_string(random_generator()());
+	  replace(id.begin(), id.end(), '-', '_');
+
+	  if (MaybeInclGuard guard = hasInclGuard(content))
 	    {
-	      fstream file(*fileName);
-	      string content((istreambuf_iterator<char>(file)),
-			     istreambuf_iterator<char>());
-	      file.seekg(0);
+	      cout << guard.get() << '\n';
+	      replace_all(content, guard.get(), id);
+	      inclGuard = "";
+	      endIf = "";
+	    }
+	  else
+	    {
+	      replace_all(inclGuard, "<Id>", id);
+	    }
 
-	      string id = string("INCL_") + to_string(random_generator()());
-	      replace(id.begin(), id.end(), '-', '_');
-
-	      if (MaybeInclGuard guard = hasInclGuard(content))
+	  if (hasCopyrightNotice(content))
+	    {
+	      copyright = "";
+	    }
+	  else
+	    {
+	      if(vm.count("company"))
 		{
-		  cout << guard.get() << '\n';
-		  replace_all(content, guard.get(), id);
-		  inclGuard = "";
-		  endIf = "";
+		  replace_first(copyright, "<Company>", vm["company"].as<string>());
 		}
 	      else
 		{
-		  replace_all(inclGuard, "<Id>", id);
-		}
-
-	      if (hasCopyrightNotice(content))
-		{
 		  copyright = "";
 		}
-
-	      content.insert(0, copyright + inclGuard);
-	      content.append(endIf);
-	      cout << content << '\n';
-	      file << content;
-	      file.flush();
 	    }
-	}
 
-      return 0;
+	  content.insert(0, copyright + inclGuard);
+	  content.append(endIf);
+	  cout << content << '\n';
+	  file << content;
+	  file.flush();
+	}
     }
+
+
+  return 0;
+}
