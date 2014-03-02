@@ -60,6 +60,13 @@ MaybeInclGuard hasInclGuard(string const& content)
     return MaybeInclGuard();
 }
 
+string generateIncludeGuardId()
+{
+	  string id = string("INCL_") + to_string(random_generator()());
+	  replace(id.begin(), id.end(), '-', '_');
+	  return id;
+}
+
 int main(int argCount, char const* args[])
 {
   cout << "uuid_incl_guard\n";
@@ -89,19 +96,17 @@ int main(int argCount, char const* args[])
 			 istreambuf_iterator<char>());
 	  file.seekg(0);
 
-	  string id = string("INCL_") + to_string(random_generator()());
-	  replace(id.begin(), id.end(), '-', '_');
-
+	  string const inclGuardId = generateIncludeGuardId();
 	  if (MaybeInclGuard guard = hasInclGuard(content))
 	    {
 	      cout << guard.get() << '\n';
-	      replace_all(content, guard.get(), id);
+	      replace_all(content, guard.get(), inclGuardId);
 	      inclGuard = "";
 	      endIf = "";
 	    }
 	  else
 	    {
-	      replace_all(inclGuard, "<Id>", id);
+	      replace_all(inclGuard, "<Id>", inclGuardId);
 	    }
 
 	  if (hasCopyrightNotice(content))
