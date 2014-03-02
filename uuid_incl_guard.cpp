@@ -62,9 +62,9 @@ MaybeInclGuard hasInclGuard(string const& content)
 
 string generateIncludeGuardId()
 {
-	  string id = string("INCL_") + to_string(random_generator()());
-	  replace(id.begin(), id.end(), '-', '_');
-	  return id;
+  string id = string("INCL_") + to_string(random_generator()());
+  replace(id.begin(), id.end(), '-', '_');
+  return id;
 }
 
 int main(int argCount, char const* args[])
@@ -119,10 +119,12 @@ int main(int argCount, char const* args[])
 	      if(vm.count("company"))
 		{
 		  replace_first(copyright, "<Company>", vm["company"].as<string>());
+		  cout << (*fileName) << " gets copyright notice\n" << copyright << '\n';
 		}
 	      else
 		{
 		  copyright = "";
+		  cout << (*fileName) << " needs copyright notice but company name is missing" << '\n';
 		}
 	    }
 
