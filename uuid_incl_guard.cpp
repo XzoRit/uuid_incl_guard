@@ -30,7 +30,7 @@ namespace po = boost::program_options;
  * - accept parameter to write include guard in a different file/console
  */
 
-std::string copyright =
+std::string const copyright =
   "/*\n"
   " * Copyright <Company>\n"
   " * All rights reserved. Company confidential.\n"
@@ -110,25 +110,20 @@ int main(int argCount, char const* args[])
 	      cout << (*fileName) << ": gets include guard " << inclGuardId << '\n';
 	    }
 
-	  if (hasCopyrightNotice(content))
-	    {
-	      copyright = "";
-	    }
-	  else
+	  if (!hasCopyrightNotice(content))
 	    {
 	      if(vm.count("company"))
 		{
-		  replace_first(copyright, "<Company>", vm["company"].as<string>());
-		  cout << (*fileName) << " gets copyright notice\n" << copyright << '\n';
+		  string const newCopyright = replace_first_copy(copyright, "<Company>", vm["company"].as<string>());
+		  content.insert(0, newCopyright);
+		  cout << (*fileName) << " gets copyright notice\n" << newCopyright << '\n';
 		}
 	      else
 		{
-		  copyright = "";
 		  cout << (*fileName) << " needs copyright notice but company name is missing" << '\n';
 		}
 	    }
 
-	  content.insert(0, copyright);
 	  cout << content << '\n';
 	  file << content;
 	  file.flush();
