@@ -99,14 +99,15 @@ int main(int argCount, char const* args[])
 	  string const inclGuardId = generateIncludeGuardId();
 	  if (MaybeInclGuard guard = hasInclGuard(content))
 	    {
-	      cout << guard.get() << '\n';
 	      replace_all(content, guard.get(), inclGuardId);
+	      cout << (*fileName) << ": changing include guard from " << guard.get() << " to " << inclGuardId << '\n';
 	      inclGuard = "";
 	      endIf = "";
 	    }
 	  else
 	    {
 	      replace_all(inclGuard, "<Id>", inclGuardId);
+	      cout << (*fileName) << ": gets include guard " << inclGuardId << '\n';
 	    }
 
 	  if (hasCopyrightNotice(content))
