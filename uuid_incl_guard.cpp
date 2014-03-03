@@ -85,6 +85,7 @@ int main(int argCount, char const* args[])
   desc.add_options()
     ("help", "produce help message")
     ("company", po::value<string>(), "name of company for copyright notice")
+    ("exchange_uuid", po::value<bool>()->default_value(true), "exchange existing uuid include guard")
     ("in_files", po::value<vector<string> >(), "place include guards in this file");
 
   po::variables_map vm;
@@ -109,7 +110,7 @@ int main(int argCount, char const* args[])
           string const inclGuardId = generateInclGuard();
           if (MaybeInclGuard guard = hasInclGuard(content))
             {
-	      if(!isUuidInclGuard(guard.get()))
+	      if(vm["exchange_uuid"].as<bool>() || !isUuidInclGuard(guard.get()))
 		{
 		  replace_all(content, guard.get(), inclGuardId);
 		  cout << (*fileName) << ": changed include guard from " << guard.get() << " to " << inclGuardId << '\n';
