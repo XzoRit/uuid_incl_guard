@@ -90,44 +90,44 @@ int main(int argCount, char const* args[])
     {
       vector<string> files = vm["in_files"].as<vector<string> >();
       for (vector<string>::const_iterator fileName = files.cbegin(); fileName != files.end(); ++fileName)
-	{
-	  fstream file(*fileName);
-	  string content((istreambuf_iterator<char>(file)),
-			 istreambuf_iterator<char>());
-	  file.seekg(0);
+        {
+          fstream file(*fileName);
+          string content((istreambuf_iterator<char>(file)),
+                         istreambuf_iterator<char>());
+          file.seekg(0);
 
-	  string const inclGuardId = generateIncludeGuardId();
-	  if (MaybeInclGuard guard = hasInclGuard(content))
-	    {
-	      replace_all(content, guard.get(), inclGuardId);
-	      cout << (*fileName) << ": changed include guard from " << guard.get() << " to " << inclGuardId << '\n';
-	    }
-	  else
-	    {
-	      string const newInclGuard = replace_all_copy(inclGuard, "<Id>", inclGuardId);
-	      content.insert(0, newInclGuard);
-	      content.append(endIf);
-	      cout << (*fileName) << ": gets include guard " << inclGuardId << '\n';
-	    }
+          string const inclGuardId = generateIncludeGuardId();
+          if (MaybeInclGuard guard = hasInclGuard(content))
+            {
+              replace_all(content, guard.get(), inclGuardId);
+              cout << (*fileName) << ": changed include guard from " << guard.get() << " to " << inclGuardId << '\n';
+            }
+          else
+            {
+              string const newInclGuard = replace_all_copy(inclGuard, "<Id>", inclGuardId);
+              content.insert(0, newInclGuard);
+              content.append(endIf);
+              cout << (*fileName) << ": gets include guard " << inclGuardId << '\n';
+            }
 
-	  if (!hasCopyrightNotice(content))
-	    {
-	      if(vm.count("company"))
-		{
-		  string const newCopyright = replace_first_copy(copyright, "<Company>", vm["company"].as<string>());
-		  content.insert(0, newCopyright);
-		  cout << (*fileName) << " gets copyright notice\n" << newCopyright << '\n';
-		}
-	      else
-		{
-		  cout << (*fileName) << " needs copyright notice but company name is missing" << '\n';
-		}
-	    }
+          if (!hasCopyrightNotice(content))
+            {
+              if(vm.count("company"))
+                {
+                  string const newCopyright = replace_first_copy(copyright, "<Company>", vm["company"].as<string>());
+                  content.insert(0, newCopyright);
+                  cout << (*fileName) << " gets copyright notice\n" << newCopyright << '\n';
+                }
+              else
+                {
+                  cout << (*fileName) << " needs copyright notice but company name is missing" << '\n';
+                }
+            }
 
-	  cout << content << '\n';
-	  file << content;
-	  file.flush();
-	}
+          cout << content << '\n';
+          file << content;
+          file.flush();
+        }
     }
 
 
