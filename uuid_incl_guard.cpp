@@ -60,7 +60,17 @@ MaybeInclGuard hasInclGuard(string const& content)
     return MaybeInclGuard();
 }
 
-string generateIncludeGuardId()
+bool isUuidInclGuard(string const& inclGuard)
+{
+  xp::sregex const reUuid = xp::as_xpr("INCL") >>
+    '_' >> xp::repeat<8>(xp::xdigit) >>
+    xp::repeat<3>('_' >> xp::repeat<4>(xp::xdigit)) >>
+    '_' >> xp::repeat<8>(xp::xdigit);
+  xp::smatch what;
+  return xp::regex_search(inclGuard, reUuid);
+}
+
+string generateInclGuard()
 {
   string id = string("INCL_") + to_string(random_generator()());
   replace(id.begin(), id.end(), '-', '_');
@@ -96,38 +106,41 @@ int main(int argCount, char const* args[])
                          istreambuf_iterator<char>());
           file.seekg(0);
 
-          string const inclGuardId = generateIncludeGuardId();
+          string const inclGuardId = generateInclGuard();
           if (MaybeInclGuard guard = hasInclGuard(content))
             {
-              replace_all(content, guard.get(), inclGuardId);
-              cout << (*fileName) << ": changed include guard from " << guard.get() << " to " << inclGuardId << '\n';
-            }
-          else
-            {
-              string const newInclGuard = replace_all_copy(inclGuard, "<Id>", inclGuardId);
-              content.insert(0, newInclGuard);
-              content.append(endIf);
-              cout << (*fileName) << ": gets include guard " << inclGuardId << '\n';
-            }
+	      if(!isUuidInclGuard(guard.get()))
+		{
+		  replace_all(content, guard.get(), inclGuardId);
+		  cout << (*fileName) << ": changed include guard from " << guard.get() << " to " << inclGuardId << '\n';
+		}
+	    }
+	  else
+	    {
+	      string const newInclGuard = replace_all_copy(inclGuard, "<Id>", inclGuardId);
+	      content.insert(0, newInclGuard);
+	      content.append(endIf);
+	      cout << (*fileName) << ": gets include guard " << inclGuardId << '\n';
+	    }
 
-          if (!hasCopyrightNotice(content))
-            {
-              if(vm.count("company"))
-                {
-                  string const newCopyright = replace_first_copy(copyright, "<Company>", vm["company"].as<string>());
-                  content.insert(0, newCopyright);
-                  cout << (*fileName) << " gets copyright notice\n" << newCopyright << '\n';
-                }
-              else
-                {
-                  cout << (*fileName) << " needs copyright notice but company name is missing" << '\n';
-                }
-            }
+	  if (!hasCopyrightNotice(content))
+	    {
+	      if(vm.count("company"))
+		{
+		  string const newCopyright = replace_first_copy(copyright, "<Company>", vm["company"].as<string>());
+		  content.insert(0, newCopyright);
+		  cout << (*fileName) << " gets copyright notice\n" << newCopyright << '\n';
+		}
+	      else
+		{
+		  cout << (*fileName) << " needs copyright notice but company name is missing" << '\n';
+		}
+	    }
 
-          cout << content << '\n';
-          file << content;
-          file.flush();
-        }
+	  cout << content << '\n';
+	  file << content;
+	  file.flush();
+	}
     }
 
 
