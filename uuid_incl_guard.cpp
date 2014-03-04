@@ -66,7 +66,6 @@ bool isUuidInclGuard(string const& inclGuard)
     '_' >> xp::repeat<8>(xp::xdigit) >>
     xp::repeat<3>('_' >> xp::repeat<4>(xp::xdigit)) >>
     '_' >> xp::repeat<8>(xp::xdigit);
-  xp::smatch what;
   return xp::regex_search(inclGuard, reUuid);
 }
 
