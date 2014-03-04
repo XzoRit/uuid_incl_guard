@@ -21,13 +21,10 @@ namespace po = boost::program_options;
 
 /*
  * TODO:
- * - recognize if file has an include guard
- * - treat #pragma once as include guard
- * - accept many files as parameters
  * - if no parameters -> print a uuid on console
  * - accept parameter to print n uuids on console
- * - write uuid include guard back to file
- * - accept parameter to write include guard in a different file/console
+ * - check for header/source files
+ * - check for copyright notice in source files
  */
 
 std::string const copyright =
