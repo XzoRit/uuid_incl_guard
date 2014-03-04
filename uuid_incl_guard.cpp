@@ -88,8 +88,11 @@ int main(int argCount, char const* args[])
     ("exchange_uuid", po::value<bool>()->default_value(true), "exchange existing uuid include guard")
     ("in_files", po::value<vector<string> >(), "place include guards in this file");
 
+  po::positional_options_description p;
+  p.add("in_files", -1);
+
   po::variables_map vm;
-  po::store(po::parse_command_line(argCount, args, desc), vm);
+  po::store(po::command_line_parser(argCount, args).options(desc).positional(p).run(), vm);
   po::notify(vm);
 
   if(vm.count("help"))
