@@ -137,11 +137,6 @@ int main(int argCount, char const* args[])
 		{
 		  string const newCopyright = replace_first_copy(copyright, "<Company>", vm["company"].as<string>());
 		  content.insert(0, newCopyright);
-		  cout << (*fileName) << " gets copyright notice\n" << newCopyright << '\n';
-		}
-	      else
-		{
-		  cout << (*fileName) << " needs copyright notice but company name is missing" << '\n';
 		}
 	    }
 
