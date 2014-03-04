@@ -140,9 +140,11 @@ int main(int argCount, char const* args[])
 	  cout << content << '\n';
 	  file << content;
 	  file.flush();
+
+	  return 0;
 	}
     }
 
-
+  cout << generateInclGuard() << '\n';
   return 0;
 }
