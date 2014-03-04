@@ -21,7 +21,6 @@ namespace po = boost::program_options;
 
 /*
  * TODO:
- * - if no parameters -> print a uuid on console
  * - accept parameter to print n uuids on console
  * - check for header/source files
  * - check for copyright notice in source files
@@ -75,14 +74,23 @@ string generateInclGuard()
 
 int main(int argCount, char const* args[])
 {
-  cout << "uuid_incl_guard\n";
-
-  po::options_description desc("allowed options");
+  po::options_description desc("usage:\n"
+			       "\tuuid_incl_guard [options] files\n"
+			       "description:\n"
+			       "\t- generates uuids as include guards for headers\n"
+			       "\t- generates copyright notice at start of header and source files\n"
+			       "options");
   desc.add_options()
-    ("help", "produce help message")
-    ("company", po::value<string>(), "name of company for copyright notice")
-    ("exchange_uuid", po::value<bool>()->default_value(true), "exchange existing uuid include guard")
-    ("in_files", po::value<vector<string> >(), "place include guards in this file");
+    ("help",
+     "produce help message")
+    ("company", po::value<string>(),
+     "name of company for copyright notice. "
+     "if it is not specified no copyright notice is placed in files")
+    ("exchange_uuid", po::value<bool>()->default_value(true),
+     "if 1 exchange existing uuid include guards "
+     "if 0 do not exchange uuids.")
+    ("in_files", po::value<vector<string> >(),
+     "place include guards and copyright notices into these files");
 
   po::positional_options_description p;
   p.add("in_files", -1);
