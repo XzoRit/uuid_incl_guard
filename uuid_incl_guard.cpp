@@ -26,18 +26,18 @@ namespace po = boost::program_options;
  * - check for copyright notice in source files
  */
 
-std::string const copyright =
+std::string const copyrightTemplate =
   "/*\n"
   " * Copyright <Company>\n"
   " * All rights reserved. Company confidential.\n"
   " */\n\n";
 
-string const inclGuard = 
+string const inclGuardTemplate = 
   "#ifndef <Id>\n"   
   "#define <Id>\n"   
   "\n";
 
-string const endIf = "\n#endif\n";
+string const endIfTemplate = "\n#endif\n";
 
 bool hasCopyrightNotice(string const& content)
 {
@@ -136,9 +136,9 @@ int main(int argCount, char const* args[])
 	    }
 	  else
 	    {
-	      string const newInclGuard = replace_all_copy(inclGuard, "<Id>", inclGuardId);
+	      string const newInclGuard = replace_all_copy(inclGuardTemplate, "<Id>", inclGuardId);
 	      content.insert(0, newInclGuard);
-	      content.append(endIf);
+	      content.append(endIfTemplate);
 	      cout << (*fileName) << ": gets include guard " << inclGuardId << '\n';
 	    }
 
@@ -146,7 +146,7 @@ int main(int argCount, char const* args[])
 	    {
 	      if(vm.count("company"))
 		{
-		  string const newCopyright = replace_first_copy(copyright, "<Company>", vm["company"].as<string>());
+		  string const newCopyright = replace_first_copy(copyrightTemplate, "<Company>", vm["company"].as<string>());
 		  content.insert(0, newCopyright);
 		}
 	    }
