@@ -75,16 +75,16 @@ string generateInclGuard()
 int main(int argCount, char const* args[])
 {
   po::options_description desc("usage:\n"
-			       "\tuuid_incl_guard [options] files\n"
-			       "description:\n"
-			       "\t- generates uuids to be used as include guards for headers\n"
-			       "\t- puts uuid include guards into header files\n"
-			       "\t- puts copyright notice at start of header and source files\n"
-			       "options");
+                               "\tuuid_incl_guard [options] files\n"
+                               "description:\n"
+                               "\t- generates uuids to be used as include guards for headers\n"
+                               "\t- puts uuid include guards into header files\n"
+                               "\t- puts copyright notice at start of header and source files\n"
+                               "options");
   desc.add_options()
     ("help",
      "produce help message")
-    ("generate_uuid_include_guards", po::value<unsigned int>()->default_value(1),
+    ("generate_uuid_include_guards", po::value<unsigned int>(),
      "generate n uuid include guards")
     ("company", po::value<string>(),
      "name of company for copyright notice. "
@@ -110,15 +110,15 @@ int main(int argCount, char const* args[])
   if(vm.count("generate_uuid_include_guards"))
     {
       for(unsigned int i = 0; i < vm["generate_uuid_include_guards"].as<unsigned int>(); ++i)
-	{
-	  cout << generateInclGuard() << '\n';
-	}
+        {
+          cout << generateInclGuard() << '\n';
+        }
       return 0;
     }
   if (vm.count("in_files"))
     {
       vector<string> files = vm["in_files"].as<vector<string> >();
-      for (vector<string>::const_iterator fileName = files.cbegin(); fileName != files.end(); ++fileName)
+      for(vector<string>::const_iterator fileName = files.cbegin(); fileName != files.end(); ++fileName)
         {
           fstream file(*fileName);
           string content((istreambuf_iterator<char>(file)),
@@ -128,33 +128,32 @@ int main(int argCount, char const* args[])
           string const inclGuardId = generateInclGuard();
           if (MaybeInclGuard guard = hasInclGuard(content))
             {
-	      if(vm["exchange_uuid"].as<bool>() || !isUuidInclGuard(guard.get()))
-		{
-		  replace_all(content, guard.get(), inclGuardId);
-		}
-	    }
-	  else
-	    {
-	      string const newInclGuard = replace_all_copy(inclGuardTemplate, "<Id>", inclGuardId);
-	      content.insert(0, newInclGuard);
-	      content.append(endIfTemplate);
-	    }
+              if(vm["exchange_uuid"].as<bool>() || !isUuidInclGuard(guard.get()))
+                {
+                  replace_all(content, guard.get(), inclGuardId);
+                }
+            }
+          else
+            {
+              string const newInclGuard = replace_all_copy(inclGuardTemplate, "<Id>", inclGuardId);
+              content.insert(0, newInclGuard);
+              content.append(endIfTemplate);
+            }
 
-	  if (!hasCopyrightNotice(content))
-	    {
-	      if(vm.count("company"))
-		{
-		  string const newCopyright = replace_first_copy(copyrightTemplate, "<Company>", vm["company"].as<string>());
-		  content.insert(0, newCopyright);
-		}
-	    }
+          if (!hasCopyrightNotice(content))
+            {
+              if(vm.count("company"))
+                {
+                  string const newCopyright = replace_first_copy(copyrightTemplate, "<Company>", vm["company"].as<string>());
+                  content.insert(0, newCopyright);
+                }
+            }
 
-	  cout << content << '\n';
-	  file << content;
-	  file.flush();
-
-	  return 0;
-	}
+          cout << content << '\n';
+          file << content;
+          file.flush();
+        }
+      return 0;
     }
 
   return 0;
