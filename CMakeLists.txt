@@ -15,4 +15,7 @@ add_executable(${PROJECT_NAME}
   ${${PROJECT_NAME}_headers}
   ${${PROJECT_NAME}_sources})
 
-target_link_libraries(${PROJECT_NAME} libboost_program_options-mt.a)
+target_link_libraries(${PROJECT_NAME}
+	libboost_program_options-mt.a
+	libboost_system-mt.a
+	libboost_filesystem-mt.a)

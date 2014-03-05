@@ -6,6 +6,8 @@
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -18,10 +20,10 @@ using namespace boost::uuids;
 
 namespace xp = boost::xpressive;
 namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
 /*
  * TODO:
- * - accept parameter to print n uuids on console
  * - check for header/source files
  * - check for copyright notice in source files
  */
@@ -72,6 +74,20 @@ string generateInclGuard()
   return id;
 }
 
+fs::path makePathFromString(string fileName)
+{
+  return fs::path(fileName);
+}
+
+typedef vector<fs::path> Paths;
+typedef Paths::const_iterator PathConstIterator;
+Paths makePathsFromStrings(vector<string> const& fileNames)
+{
+  Paths paths(fileNames.size());
+  transform(fileNames.begin(), fileNames.end(), paths.begin(), makePathFromString);
+  return paths;
+}
+
 int main(int argCount, char const* args[])
 {
   po::options_description desc("usage:\n"
@@ -117,10 +133,10 @@ int main(int argCount, char const* args[])
     }
   if (vm.count("in_files"))
     {
-      vector<string> files = vm["in_files"].as<vector<string> >();
-      for(vector<string>::const_iterator fileName = files.cbegin(); fileName != files.end(); ++fileName)
+      Paths const paths = makePathsFromStrings(vm["in_files"].as<vector<string> >());
+      for (PathConstIterator path = paths.cbegin(); path != paths.end(); ++path)
         {
-          fstream file(*fileName);
+	  fs::fstream file(*path);
           string content((istreambuf_iterator<char>(file)),
                          istreambuf_iterator<char>());
           file.seekg(0);
