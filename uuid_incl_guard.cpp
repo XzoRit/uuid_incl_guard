@@ -136,13 +136,17 @@ int main(int argCount, char const* args[])
       Paths const paths = makePathsFromStrings(vm["in_files"].as<vector<string> >());
       for (PathConstIterator path = paths.cbegin(); path != paths.end(); ++path)
         {
+	  fs::file_status const fstat = fs::status(*path);
+	  if(!fs::is_regular_file(fstat)) continue;
+	  fs::perms permissions = fstat.permissions();
+	  if(!((permissions & fs::owner_read) && (permissions & fs::owner_write))) continue;
+
 	  fs::fstream file(*path);
           string content((istreambuf_iterator<char>(file)),
                          istreambuf_iterator<char>());
-          file.seekg(0);
 
           string const inclGuardId = generateInclGuard();
-          if (MaybeInclGuard guard = hasInclGuard(content))
+          if (MaybeInclGuard const guard = hasInclGuard(content))
             {
               if(vm["exchange_uuid"].as<bool>() || !isUuidInclGuard(guard.get()))
                 {
@@ -166,6 +170,7 @@ int main(int argCount, char const* args[])
             }
 
           cout << content << '\n';
+          file.seekg(0);
           file << content;
           file.flush();
         }
