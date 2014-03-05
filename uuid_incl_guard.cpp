@@ -77,12 +77,15 @@ int main(int argCount, char const* args[])
   po::options_description desc("usage:\n"
 			       "\tuuid_incl_guard [options] files\n"
 			       "description:\n"
-			       "\t- generates uuids as include guards for headers\n"
-			       "\t- generates copyright notice at start of header and source files\n"
+			       "\t- generates uuids to be used as include guards for headers\n"
+			       "\t- puts uuid include guards into header files\n"
+			       "\t- puts copyright notice at start of header and source files\n"
 			       "options");
   desc.add_options()
     ("help",
      "produce help message")
+    ("generate_uuid_include_guards", po::value<unsigned int>()->default_value(1),
+     "generate n uuid include guards")
     ("company", po::value<string>(),
      "name of company for copyright notice. "
      "if it is not specified no copyright notice is placed in files")
@@ -102,6 +105,14 @@ int main(int argCount, char const* args[])
   if(vm.count("help"))
     {
       cout << desc << '\n';
+      return 0;
+    }
+  if(vm.count("generate_uuid_include_guards"))
+    {
+      for(unsigned int i = 0; i < vm["generate_uuid_include_guards"].as<unsigned int>(); ++i)
+	{
+	  cout << generateInclGuard() << '\n';
+	}
       return 0;
     }
   if (vm.count("in_files"))
@@ -148,6 +159,5 @@ int main(int argCount, char const* args[])
 	}
     }
 
-  cout << generateInclGuard() << '\n';
   return 0;
 }
