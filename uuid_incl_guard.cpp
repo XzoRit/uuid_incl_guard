@@ -131,7 +131,6 @@ int main(int argCount, char const* args[])
 	      if(vm["exchange_uuid"].as<bool>() || !isUuidInclGuard(guard.get()))
 		{
 		  replace_all(content, guard.get(), inclGuardId);
-		  cout << (*fileName) << ": changed include guard from " << guard.get() << " to " << inclGuardId << '\n';
 		}
 	    }
 	  else
@@ -139,7 +138,6 @@ int main(int argCount, char const* args[])
 	      string const newInclGuard = replace_all_copy(inclGuardTemplate, "<Id>", inclGuardId);
 	      content.insert(0, newInclGuard);
 	      content.append(endIfTemplate);
-	      cout << (*fileName) << ": gets include guard " << inclGuardId << '\n';
 	    }
 
 	  if (!hasCopyrightNotice(content))
