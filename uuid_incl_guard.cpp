@@ -13,6 +13,7 @@
 #include <string>
 #include <streambuf>
 #include <algorithm>
+#include <iterator>
 
 using namespace std;
 using namespace boost;
@@ -88,6 +89,39 @@ Paths makePathsFromStrings(vector<string> const& fileNames)
   return paths;
 }
 
+bool isReadWriteFile(fs::path const& path)
+{
+  fs::file_status const fstat = fs::status(path);
+  if(!fs::is_regular_file(fstat)) return false;
+
+  fs::perms permissions = fstat.permissions();
+  if(!((permissions & fs::owner_read) && (permissions & fs::owner_write))) return false;
+
+  return true;
+}
+
+
+bool canReadWriteFiles(Paths const& paths)
+{
+  Paths readWriteFiles;
+  copy_if(paths.begin(), paths.end(), back_inserter(readWriteFiles), isReadWriteFile);
+  return readWriteFiles.size() == paths.size();
+}
+
+bool isCppSourceFile(fs::path const& path)
+{
+  fs::path ext = path.extension();
+  typedef fs::path::string_type StringType;
+  return (ext == StringType(".hpp")) || (ext == StringType(".h")) || (ext == StringType(".cpp")) || (ext == StringType(".c"));
+}
+
+bool areCppSourceFiles(Paths const& paths)
+{
+  Paths cppFiles;
+  copy_if(paths.begin(), paths.end(), back_inserter(cppFiles), isCppSourceFile);
+  return cppFiles.size() == paths.size();
+}
+
 int main(int argCount, char const* args[])
 {
   po::options_description desc("usage:\n"
@@ -134,13 +168,16 @@ int main(int argCount, char const* args[])
   if (vm.count("in_files"))
     {
       Paths const paths = makePathsFromStrings(vm["in_files"].as<vector<string> >());
+      if(!canReadWriteFiles(paths))
+	{
+	  return 0;
+	}
+      if(!areCppSourceFiles(paths))
+	{
+	  return 0;
+	}
       for (PathConstIterator path = paths.cbegin(); path != paths.end(); ++path)
         {
-	  fs::file_status const fstat = fs::status(*path);
-	  if(!fs::is_regular_file(fstat)) continue;
-	  fs::perms permissions = fstat.permissions();
-	  if(!((permissions & fs::owner_read) && (permissions & fs::owner_write))) continue;
-
 	  fs::fstream file(*path);
           string content((istreambuf_iterator<char>(file)),
                          istreambuf_iterator<char>());
