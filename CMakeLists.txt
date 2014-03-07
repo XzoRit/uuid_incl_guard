@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
-cmake_policy(SET CMP0021 OLD)
+
+include(CMakePrintHelpers)
 
 project(uuid_incl_guard)
 
@@ -11,11 +12,26 @@ add_compile_options(-g)
 set (${PROJECT_NAME}_headers "")
 set (${PROJECT_NAME}_sources "uuid_incl_guard.cpp")
 
+set (TEST_PROJECT_NAME test_${PROJECT_NAME})
+set (${TEST_PROJECT_NAME}_headers ${${PROJECT_NAME}_headers})
+set (${TEST_PROJECT_NAME}_sources "test_uuid_incl_guard.cpp")
+
 add_executable(${PROJECT_NAME}
   ${${PROJECT_NAME}_headers}
   ${${PROJECT_NAME}_sources})
 
-target_link_libraries(${PROJECT_NAME}
+add_executable(${TEST_PROJECT_NAME}
+  ${${TEST_PROJECT_NAME}_headers}
+  ${${TEST_PROJECT_NAME}_sources})
+
+set (${PROJECT_NAME}_libs
 	libboost_program_options-mt.a
 	libboost_system-mt.a
 	libboost_filesystem-mt.a)
+set (${TEST_PROJECT_NAME}_libs ${${PROJECT_NAME}_libs})
+
+target_link_libraries(${PROJECT_NAME}
+	${${PROJECT_NAME}_libs})
+
+target_link_libraries(${TEST_PROJECT_NAME}
+	${${TEST_PROJECT_NAME}_libs})
