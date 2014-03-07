@@ -29,7 +29,7 @@ namespace fs = boost::filesystem;
 bool hasCopyrightNotice(string const& content)
 {
   xp::smatch what;
-  return xp::regex_search(content, what, xp::sregex(xp::as_xpr("Copyright")));
+  return xp::regex_search(content, what, xp::sregex(xp::icase(xp::as_xpr("Copyright"))));
 }
 
 typedef boost::optional<string> MaybeInclGuard;
