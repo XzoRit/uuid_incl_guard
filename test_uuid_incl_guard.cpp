@@ -83,3 +83,21 @@ TEST_CASE("generate incl guard shall return a random c/c++ conform guard symbol"
       CHECK(g5 != g6);
     }
 }
+
+TEST_CASE("make path from string converts a string into a path object", "makePathFromString")
+{
+  std::string const s = "a sample string for a path object";
+  using boost::filesystem::path;
+  path const p = makePathFromString(s);
+  CHECK(p == s);  
+}
+
+TEST_CASE("make paths from strings converts a strings into a path objects", "makePathsFromStrings")
+{
+  std::vector<std::string> strings;
+  strings.push_back("path_1");
+  strings.push_back("path_2");
+  strings.push_back("path_3");
+  Paths const paths = makePathsFromStrings(strings);
+  CHECK(std::equal(strings.begin(), strings.end(), paths.begin()));
+}
