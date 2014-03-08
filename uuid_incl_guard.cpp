@@ -4,6 +4,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <string>
 #include <streambuf>
+#include <sstream>
 
 using namespace std;
 using namespace boost;
@@ -29,6 +30,7 @@ int main(int argCount, char* args[])
   bool optExchangeUuid = true;
   string optCompany = "";
   unsigned int optGenNUuids = 0;
+  vector<string> optFiles;
   po::options_description desc("usage:\n"
                                "\tuuid_incl_guard [options] files\n"
                                "description:\n"
@@ -47,7 +49,7 @@ int main(int argCount, char* args[])
     ("exchange_uuid", po::value<bool>(&optExchangeUuid)->default_value(true),
      "if 1 exchange existing uuid include guards "
      "if 0 do not exchange uuids.")
-    ("in_files", po::value<vector<string> >(),
+    ("in_files", po::value<vector<string> >(&optFiles),
      "place include guards and copyright notices into these files");
 
   po::positional_options_description p;
@@ -64,7 +66,7 @@ int main(int argCount, char* args[])
     }
   if (vm.count("in_files"))
     {
-      Paths const paths = makePathsFromStrings(vm["in_files"].as<vector<string> >());
+      Paths const paths = makePathsFromStrings(optFiles);
       if(!areReadWriteCppFiles(paths))
 	{
 	  return 0;
@@ -73,6 +75,7 @@ int main(int argCount, char* args[])
 	optCompany.empty() ? "" : replace_first_copy(copyrightTemplate,
 						     "<Company>",
 						     optCompany);
+      stringstream report;
       for (PathConstIterator path = paths.cbegin(); path != paths.end(); ++path)
 	{
 	  fs::fstream file(*path);
@@ -86,6 +89,7 @@ int main(int argCount, char* args[])
 		  if(optExchangeUuid || !isUuidInclGuard(guard.get()))
 		    {
 		      replace_all(content, guard.get(), inclGuardId);
+		      report << (*path) << ": " << "replaced " << guard.get() << " with " << inclGuardId << '\n';
 		    }
 		}
 	      else
@@ -95,16 +99,19 @@ int main(int argCount, char* args[])
 							       inclGuardId);
 		  content.insert(0, newInclGuard);
 		  content.append(endIfTemplate);
+		  report << (*path) << ": has new include guard " << inclGuardId << '\n';
 		}
 	    }
 	  if (!copyright.empty() && !hasCopyrightNotice(content))
 	    {
 	      content.insert(0, copyright);
+	      report << (*path) << ": has new copyright notice with company " << optCompany << '\n';
 	    }
 	  file.seekg(0);
 	  file << content;
 	  file.flush();
 	}
+      cout << report.str();
       return 0;
     }
   if(vm.count("generate"))
