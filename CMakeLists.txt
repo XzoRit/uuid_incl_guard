@@ -10,11 +10,11 @@ link_directories("/opt/local/lib")
 add_compile_options(-g)
 
 set (${PROJECT_NAME}_headers "")
-set (${PROJECT_NAME}_sources "uuid_incl_guard.cpp")
+set (${PROJECT_NAME}_sources "uuid_incl_guard.cpp" "utils.cpp")
 
 set (TEST_PROJECT_NAME test_${PROJECT_NAME})
 set (${TEST_PROJECT_NAME}_headers ${${PROJECT_NAME}_headers})
-set (${TEST_PROJECT_NAME}_sources "test_uuid_incl_guard.cpp")
+set (${TEST_PROJECT_NAME}_sources "test_uuid_incl_guard.cpp" "utils.cpp")
 
 add_executable(${PROJECT_NAME}
   ${${PROJECT_NAME}_headers}
