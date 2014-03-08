@@ -27,6 +27,10 @@ bool isReadWriteFile(boost::filesystem::path const& path);
 
 bool canReadWriteFiles(Paths const& paths);
 
+bool isHeaderFile(boost::filesystem::path const& path);
+
+bool isSourceFile(boost::filesystem::path const& path);
+
 bool isCppSourceFile(boost::filesystem::path const& path);
 
 bool areCppSourceFiles(Paths const& paths);

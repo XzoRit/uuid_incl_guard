@@ -11,12 +11,6 @@ using namespace boost;
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
-/*
- * TODO:
- * - check for header/source files
- * - check for copyright notice in source files
- */
-
 std::string const copyrightTemplate =
   "/*\n"
   " * Copyright <Company>\n"
@@ -84,24 +78,25 @@ int main(int argCount, char* args[])
 	  fs::fstream file(*path);
 	  string content((istreambuf_iterator<char>(file)),
 			 istreambuf_iterator<char>());
-
-	  string const inclGuardId = generateInclGuard();
-	  if (MaybeInclGuard const guard = hasInclGuard(content))
+	  if(isHeaderFile(*path))
 	    {
-	      if(optExchangeUuid || !isUuidInclGuard(guard.get()))
+	      string const inclGuardId = generateInclGuard();
+	      if (MaybeInclGuard const guard = hasInclGuard(content))
 		{
-		  replace_all(content, guard.get(), inclGuardId);
+		  if(optExchangeUuid || !isUuidInclGuard(guard.get()))
+		    {
+		      replace_all(content, guard.get(), inclGuardId);
+		    }
+		}
+	      else
+		{
+		  string const newInclGuard = replace_all_copy(inclGuardTemplate,
+							       "<Id>",
+							       inclGuardId);
+		  content.insert(0, newInclGuard);
+		  content.append(endIfTemplate);
 		}
 	    }
-	  else
-	    {
-	      string const newInclGuard = replace_all_copy(inclGuardTemplate,
-							   "<Id>",
-							   inclGuardId);
-	      content.insert(0, newInclGuard);
-	      content.append(endIfTemplate);
-	    }
-
 	  if (!copyright.empty() && !hasCopyrightNotice(content))
 	    {
 	      content.insert(0, copyright);

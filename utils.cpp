@@ -90,11 +90,23 @@ bool canReadWriteFiles(Paths const& paths)
   return readWriteFiles.size() == paths.size();
 }
 
+bool isHeaderFile(boost::filesystem::path const& path)
+{
+  fs::path const ext = path.extension();
+  typedef fs::path::string_type StringType;
+  return (ext == StringType(".hpp")) || (ext == StringType(".h"));
+}
+
+bool isSourceFile(boost::filesystem::path const& path)
+{
+  fs::path const ext = path.extension();
+  typedef fs::path::string_type StringType;
+  return (ext == StringType(".cpp")) || (ext == StringType(".c"));
+}
+
 bool isCppSourceFile(fs::path const& path)
 {
-  fs::path ext = path.extension();
-  typedef fs::path::string_type StringType;
-  return (ext == StringType(".hpp")) || (ext == StringType(".h")) || (ext == StringType(".cpp")) || (ext == StringType(".c"));
+  return isHeaderFile(path) || isSourceFile(path);
 }
 
 bool areCppSourceFiles(Paths const& paths)
