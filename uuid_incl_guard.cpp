@@ -32,6 +32,9 @@ string const endIfTemplate = "\n#endif\n";
 
 int main(int argCount, char* args[])
 {
+  bool optExchangeUuid = true;
+  string optCompany = "";
+  unsigned int optGenNUuids = 0;
   po::options_description desc("usage:\n"
                                "\tuuid_incl_guard [options] files\n"
                                "description:\n"
@@ -42,12 +45,12 @@ int main(int argCount, char* args[])
   desc.add_options()
     ("help",
      "produce help message")
-    ("generate_uuid_include_guards", po::value<unsigned int>(),
+    ("generate", po::value<unsigned int>(&optGenNUuids)->default_value(1),
      "generate n uuid include guards")
-    ("company", po::value<string>(),
+    ("company", po::value<string>(&optCompany),
      "name of company for copyright notice. "
      "if it is not specified no copyright notice is placed in files")
-    ("exchange_uuid", po::value<bool>()->default_value(true),
+    ("exchange_uuid", po::value<bool>(&optExchangeUuid)->default_value(true),
      "if 1 exchange existing uuid include guards "
      "if 0 do not exchange uuids.")
     ("in_files", po::value<vector<string> >(),
@@ -65,22 +68,10 @@ int main(int argCount, char* args[])
       cout << desc << '\n';
       return 0;
     }
-  if(vm.count("generate_uuid_include_guards"))
-    {
-      for(unsigned int i = 0; i < vm["generate_uuid_include_guards"].as<unsigned int>(); ++i)
-	{
-	  cout << generateInclGuard() << '\n';
-	}
-      return 0;
-    }
   if (vm.count("in_files"))
     {
       Paths const paths = makePathsFromStrings(vm["in_files"].as<vector<string> >());
-      if(!canReadWriteFiles(paths))
-	{
-	  return 0;
-	}
-      if(!areCppSourceFiles(paths))
+      if(!areReadWriteCppFiles(paths))
 	{
 	  return 0;
 	}
@@ -93,31 +84,38 @@ int main(int argCount, char* args[])
 	  string const inclGuardId = generateInclGuard();
 	  if (MaybeInclGuard const guard = hasInclGuard(content))
 	    {
-	      if(vm["exchange_uuid"].as<bool>() || !isUuidInclGuard(guard.get()))
+	      if(optExchangeUuid || !isUuidInclGuard(guard.get()))
 		{
 		  replace_all(content, guard.get(), inclGuardId);
 		}
 	    }
 	  else
 	    {
-	      string const newInclGuard = replace_all_copy(inclGuardTemplate, "<Id>", inclGuardId);
+	      string const newInclGuard = replace_all_copy(inclGuardTemplate,
+							   "<Id>",
+							   inclGuardId);
 	      content.insert(0, newInclGuard);
 	      content.append(endIfTemplate);
 	    }
 
-	  if (!hasCopyrightNotice(content))
+	  if (!optCompany.empty() && !hasCopyrightNotice(content))
 	    {
-	      if(vm.count("company"))
-		{
-		  string const newCopyright = replace_first_copy(copyrightTemplate, "<Company>", vm["company"].as<string>());
-		  content.insert(0, newCopyright);
-		}
+	      string const newCopyright = replace_first_copy(copyrightTemplate,
+							     "<Company>",
+							     optCompany);
+	      content.insert(0, newCopyright);
 	    }
-
-	  cout << content << '\n';
 	  file.seekg(0);
 	  file << content;
 	  file.flush();
+	}
+      return 0;
+    }
+  if(vm.count("generate"))
+    {
+      for(unsigned int i = 0; i < optGenNUuids; ++i)
+	{
+	  cout << generateInclGuard() << '\n';
 	}
       return 0;
     }

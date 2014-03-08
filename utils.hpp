@@ -31,4 +31,6 @@ bool isCppSourceFile(boost::filesystem::path const& path);
 
 bool areCppSourceFiles(Paths const& paths);
 
+bool areReadWriteCppFiles(Paths const& paths);
+
 #endif

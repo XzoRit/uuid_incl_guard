@@ -103,3 +103,8 @@ bool areCppSourceFiles(Paths const& paths)
   copy_if(paths.begin(), paths.end(), back_inserter(cppFiles), isCppSourceFile);
   return cppFiles.size() == paths.size();
 }
+
+bool areReadWriteCppFiles(Paths const& paths)
+{
+  return canReadWriteFiles(paths) && areCppSourceFiles(paths);
+}
