@@ -126,3 +126,38 @@ TEST_CASE("is read write file returns true if file is readable and writeable", "
       CHECK_FALSE(isReadWriteFile(fs));
     }
 }
+
+TEST_CASE("is cpp source file returns true is path either ends with .c, .h, .cpp or .hpp", "isCppSourceFile")
+{
+  using namespace boost::filesystem;
+  SECTION("ends with .c")
+    {
+      path const p = "this/is/a/test/path/to/a/c/source/file.c";
+      CHECK(isCppSourceFile(p));
+    }
+  SECTION("ends with .h")
+    {
+      path const p = "this/is/a/test/path/to/a/c/header/file.h";
+      CHECK(isCppSourceFile(p));
+    }
+  SECTION("ends with .cpp")
+    {
+      path const p = "this/is/a/test/path/to/a/cpp/source/file.cpp";
+      CHECK(isCppSourceFile(p));
+    }
+  SECTION("ends with .hpp")
+    {
+      path const p = "this/is/a/test/path/to/a/cpp/header/file.hpp";
+      CHECK(isCppSourceFile(p));
+    }
+}
+
+TEST_CASE("are cpp source files returns true if all paths either ends with .c, .h, .cpp or .hpp", "areCppSourceFiles")
+{
+  Paths paths;
+  paths.push_back("this/is/a/test/path/to/a/c/source/file.c");
+  paths.push_back("this/is/a/test/path/to/a/c/header/file.h");
+  paths.push_back("this/is/a/test/path/to/a/cpp/source/file.cpp");
+  paths.push_back("this/is/a/test/path/to/a/cpp/header/file.hpp");
+  CHECK(areCppSourceFiles(paths));
+}
