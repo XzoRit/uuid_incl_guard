@@ -75,6 +75,10 @@ int main(int argCount, char* args[])
 	{
 	  return 0;
 	}
+      string const copyright =
+	optCompany.empty() ? "" : replace_first_copy(copyrightTemplate,
+						     "<Company>",
+						     optCompany);
       for (PathConstIterator path = paths.cbegin(); path != paths.end(); ++path)
 	{
 	  fs::fstream file(*path);
@@ -98,12 +102,9 @@ int main(int argCount, char* args[])
 	      content.append(endIfTemplate);
 	    }
 
-	  if (!optCompany.empty() && !hasCopyrightNotice(content))
+	  if (!copyright.empty() && !hasCopyrightNotice(content))
 	    {
-	      string const newCopyright = replace_first_copy(copyrightTemplate,
-							     "<Company>",
-							     optCompany);
-	      content.insert(0, newCopyright);
+	      content.insert(0, copyright);
 	    }
 	  file.seekg(0);
 	  file << content;
