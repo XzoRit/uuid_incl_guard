@@ -101,3 +101,28 @@ TEST_CASE("make paths from strings converts a strings into a path objects", "mak
   Paths const paths = makePathsFromStrings(strings);
   CHECK(std::equal(strings.begin(), strings.end(), paths.begin()));
 }
+
+TEST_CASE("is read write file returns true if file is readable and writeable", "isReadWriteFile")
+{
+  using namespace boost::filesystem;
+  SECTION("is regular file, is readable by owner and is writeable")
+    {
+      file_status fs(regular_file, owner_read | owner_write);
+      CHECK(isReadWriteFile(fs));
+    }
+  SECTION("file not found, is readable by owner and is writeable")
+    {
+      file_status fs(file_not_found, owner_read | owner_write);
+      CHECK_FALSE(isReadWriteFile(fs));
+    }
+  SECTION("is directory file, is readable by owner and is writeable")
+    {
+      file_status fs(directory_file, owner_read | owner_write);
+      CHECK_FALSE(isReadWriteFile(fs));
+    }
+  SECTION("is regular file, no permissionss")
+    {
+      file_status fs(directory_file, no_perms);
+      CHECK_FALSE(isReadWriteFile(fs));
+    }
+}

@@ -73,9 +73,8 @@ Paths makePathsFromStrings(vector<string> const& fileNames)
   return paths;
 }
 
-bool isReadWriteFile(fs::path const& path)
+bool isReadWriteFile(fs::file_status const& fstat)
 {
-  fs::file_status const fstat = fs::status(path);
   if(!fs::is_regular_file(fstat)) return false;
 
   fs::perms permissions = fstat.permissions();
@@ -84,10 +83,25 @@ bool isReadWriteFile(fs::path const& path)
   return true;
 }
 
+bool isReadWriteFile(fs::path const& path)
+{
+  try
+    {
+      fs::file_status const fstat = fs::status(path);
+      return isReadWriteFile(fstat);
+    }
+  catch(...)
+    {
+      return false;
+    }
+}
+
 bool canReadWriteFiles(Paths const& paths)
 {
   Paths readWriteFiles;
-  copy_if(paths.begin(), paths.end(), back_inserter(readWriteFiles), isReadWriteFile);
+  copy_if(paths.begin(), paths.end(),
+	  back_inserter(readWriteFiles),
+	  static_cast<bool(*)(fs::path const&)>(isReadWriteFile));
   return readWriteFiles.size() == paths.size();
 }
 
