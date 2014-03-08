@@ -1,26 +1,13 @@
 #include "utils.hpp"
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/xpressive/xpressive.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/optional.hpp>
 #include <boost/program_options.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <iostream>
-#include <fstream>
+#include <boost/algorithm/string/replace.hpp>
 #include <string>
 #include <streambuf>
-#include <algorithm>
-#include <iterator>
 
 using namespace std;
 using namespace boost;
-using namespace boost::uuids;
 
-namespace xp = boost::xpressive;
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 

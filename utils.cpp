@@ -1,4 +1,15 @@
 #include "utils.hpp"
+#include <boost/xpressive/xpressive.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
+using namespace std;
+
+namespace xp = boost::xpressive;
+namespace fs = boost::filesystem;
+namespace uuid = boost::uuids;
 
 bool hasCopyrightNotice(string const& content)
 {
@@ -28,7 +39,7 @@ bool isUuidInclGuard(string const& inclGuard)
 
 string generateInclGuard()
 {
-  string id = string("INCL_") + to_string(random_generator()());
+  string id = string("INCL_") + uuid::to_string(uuid::random_generator()());
   replace(id.begin(), id.end(), '-', '_');
   return id;
 }
