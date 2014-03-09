@@ -37,4 +37,8 @@ bool areCppSourceFiles(Paths const& paths);
 
 bool areReadWriteCppFiles(Paths const& paths);
 
+bool isReadWriteCppFile(boost::filesystem::path const& path);
+
+PathConstIterator partitionByReadWriteCppFile(Paths& paths);
+
 #endif

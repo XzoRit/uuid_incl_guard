@@ -5,6 +5,7 @@
 #include <string>
 #include <streambuf>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 using namespace boost;
@@ -66,16 +67,19 @@ int main(int argCount, char* args[])
     }
   if (vm.count("in_files"))
     {
-      Paths const paths = makePathsFromStrings(optFiles);
-      if(!areReadWriteCppFiles(paths))
+      stringstream report;
+      Paths paths = makePathsFromStrings(optFiles);
+      PathConstIterator sep = partitionByReadWriteCppFile(paths);
+      if(sep != paths.cend())
 	{
-	  return 0;
+	  cerr << "processing aborted\nthese files are not valid:\n";
+	  copy(sep, paths.cend(), ostream_iterator<Paths::const_reference>(cerr, "\n"));
+	  return 1;
 	}
       string const copyright =
 	optCompany.empty() ? "" : replace_first_copy(copyrightTemplate,
 						     "<Company>",
 						     optCompany);
-      stringstream report;
       for (PathConstIterator path = paths.cbegin(); path != paths.end(); ++path)
 	{
 	  fs::fstream file(*path);

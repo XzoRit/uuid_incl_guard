@@ -120,3 +120,13 @@ bool areReadWriteCppFiles(Paths const& paths)
 {
   return canReadWriteFiles(paths) && areCppSourceFiles(paths);
 }
+
+bool isReadWriteCppFile(fs::path const& path)
+{
+  return isReadWriteFile(path) && isCppSourceFile(path);
+}
+
+PathConstIterator partitionByReadWriteCppFile(Paths& paths)
+{
+  return partition(paths.begin(), paths.end(), isReadWriteCppFile);
+}

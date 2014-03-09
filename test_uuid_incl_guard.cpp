@@ -159,5 +159,13 @@ TEST_CASE("are cpp source files returns true if all paths either ends with .c, .
   paths.push_back("this/is/a/test/path/to/a/c/header/file.h");
   paths.push_back("this/is/a/test/path/to/a/cpp/source/file.cpp");
   paths.push_back("this/is/a/test/path/to/a/cpp/header/file.hpp");
-  CHECK(areCppSourceFiles(paths));
+  SECTION("all files are valid")
+    {
+      CHECK(areCppSourceFiles(paths));
+    }
+  SECTION("not all files are valid")
+    {
+      paths.insert(paths.begin() + paths.size() / 2, "this/is/a/test/path/to/a/text/file.txt");
+      CHECK_FALSE(areCppSourceFiles(paths));
+    }
 }
