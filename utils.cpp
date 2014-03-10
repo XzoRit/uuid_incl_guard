@@ -128,18 +128,11 @@ static Paths extractDirectories(Paths& paths)
   return dirs;
 }
 
-static Paths readWriteCppFiles(Paths& paths, Paths::const_reference dir)
-{
-  copy_if(fs::directory_iterator(dir),
-	  fs::directory_iterator(),
-	  back_inserter(paths),
-	  isReadWriteCppFile);
-  return paths;
-}
-
-void addCppFilesFromDirectories(Paths& paths)
+void addCppFilesFromDirectories(Paths& paths, bool recursive)
 {
   Paths const dirs = extractDirectories(paths);
-  Paths const srcs = accumulate(dirs.cbegin(), dirs.cend(), Paths(), readWriteCppFiles);
+  Paths srcs;
+  if(recursive) srcs = accumulate(dirs.cbegin(), dirs.cend(), Paths(), readWriteCppFiles<fs::recursive_directory_iterator>);
+  else srcs = accumulate(dirs.cbegin(), dirs.cend(), Paths(), readWriteCppFiles<fs::directory_iterator>);
   paths.insert(paths.end(), srcs.begin(), srcs.end());
 }

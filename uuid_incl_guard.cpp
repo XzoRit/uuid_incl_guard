@@ -32,6 +32,7 @@ int main(int argCount, char* args[])
   string optCompany = "";
   unsigned int optGenNUuids = 0;
   vector<string> optFiles;
+  bool optRecursive = false;
   po::options_description desc("usage:\n"
                                "\tuuid_incl_guard [options] files\n"
                                "description:\n"
@@ -48,8 +49,10 @@ int main(int argCount, char* args[])
      "name of company for copyright notice. "
      "if it is not specified no copyright notice is placed in files")
     ("exchange_uuid", po::value<bool>(&optExchangeUuid)->default_value(true),
-     "if 1 exchange existing uuid include guards "
-     "if 0 do not exchange uuids.")
+     "if true exchange existing uuid include guards "
+     "if false do not exchange uuids.")
+    ("recursive", po::value<bool>(&optRecursive)->default_value(false),
+     "if true given directories are scanned for source files recursivly")
     ("in", po::value<vector<string> >(&optFiles),
      "place include guards and copyright notice into these files. "
      "if a directory is given it is scanned for source files and these are processed.");
@@ -66,11 +69,11 @@ int main(int argCount, char* args[])
       cout << desc << '\n';
       return 0;
     }
-  if (vm.count("in_files"))
+  if (vm.count("in"))
     {
       stringstream report;
       Paths paths = makePathsFromStrings(optFiles);
-      addCppFilesFromDirectories(paths);
+      addCppFilesFromDirectories(paths, optRecursive);
       PathConstIterator sep = partitionByReadWriteCppFile(paths);
       if(sep != paths.cend())
 	{

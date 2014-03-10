@@ -35,6 +35,16 @@ bool isReadWriteCppFile(boost::filesystem::path const& path);
 
 PathConstIterator partitionByReadWriteCppFile(Paths& paths);
 
-void addCppFilesFromDirectories(Paths& paths);
+template<typename DirIter>
+static Paths readWriteCppFiles(Paths& paths, Paths::const_reference dir)
+{
+  copy_if(DirIter(dir),
+	  DirIter(),
+	  back_inserter(paths),
+	  isReadWriteCppFile);
+  return paths;
+}
+
+void addCppFilesFromDirectories(Paths& paths, bool recursive);
 
 #endif
