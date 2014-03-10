@@ -50,11 +50,12 @@ int main(int argCount, char* args[])
     ("exchange_uuid", po::value<bool>(&optExchangeUuid)->default_value(true),
      "if 1 exchange existing uuid include guards "
      "if 0 do not exchange uuids.")
-    ("in_files", po::value<vector<string> >(&optFiles),
-     "place include guards and copyright notices into these files");
+    ("in", po::value<vector<string> >(&optFiles),
+     "place include guards and copyright notice into these files. "
+     "if a directory is given it is scanned for source files and these are processed.");
 
   po::positional_options_description p;
-  p.add("in_files", -1);
+  p.add("in", -1);
 
   po::variables_map vm;
   po::store(po::command_line_parser(argCount, args).options(desc).positional(p).run(), vm);
