@@ -69,6 +69,7 @@ int main(int argCount, char* args[])
     {
       stringstream report;
       Paths paths = makePathsFromStrings(optFiles);
+      addCppFilesFromDirectories(paths);
       PathConstIterator sep = partitionByReadWriteCppFile(paths);
       if(sep != paths.cend())
 	{

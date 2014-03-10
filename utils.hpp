@@ -25,20 +25,16 @@ bool isReadWriteFile(boost::filesystem::file_status const& fstat);
 
 bool isReadWriteFile(boost::filesystem::path const& path);
 
-bool canReadWriteFiles(Paths const& paths);
-
 bool isHeaderFile(boost::filesystem::path const& path);
 
 bool isSourceFile(boost::filesystem::path const& path);
 
 bool isCppSourceFile(boost::filesystem::path const& path);
 
-bool areCppSourceFiles(Paths const& paths);
-
-bool areReadWriteCppFiles(Paths const& paths);
-
 bool isReadWriteCppFile(boost::filesystem::path const& path);
 
 PathConstIterator partitionByReadWriteCppFile(Paths& paths);
+
+void addCppFilesFromDirectories(Paths& paths);
 
 #endif

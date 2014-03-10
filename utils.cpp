@@ -4,6 +4,10 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <vector>
+#include <algorithm>
+#include <numeric>
+#include <string>
 
 using namespace std;
 
@@ -81,15 +85,6 @@ bool isReadWriteFile(fs::path const& path)
     }
 }
 
-bool canReadWriteFiles(Paths const& paths)
-{
-  Paths readWriteFiles;
-  copy_if(paths.begin(), paths.end(),
-	  back_inserter(readWriteFiles),
-	  static_cast<bool(*)(fs::path const&)>(isReadWriteFile));
-  return readWriteFiles.size() == paths.size();
-}
-
 bool isHeaderFile(boost::filesystem::path const& path)
 {
   fs::path const ext = path.extension();
@@ -109,18 +104,6 @@ bool isCppSourceFile(fs::path const& path)
   return isHeaderFile(path) || isSourceFile(path);
 }
 
-bool areCppSourceFiles(Paths const& paths)
-{
-  Paths cppFiles;
-  copy_if(paths.begin(), paths.end(), back_inserter(cppFiles), isCppSourceFile);
-  return cppFiles.size() == paths.size();
-}
-
-bool areReadWriteCppFiles(Paths const& paths)
-{
-  return canReadWriteFiles(paths) && areCppSourceFiles(paths);
-}
-
 bool isReadWriteCppFile(fs::path const& path)
 {
   return isReadWriteFile(path) && isCppSourceFile(path);
@@ -129,4 +112,34 @@ bool isReadWriteCppFile(fs::path const& path)
 PathConstIterator partitionByReadWriteCppFile(Paths& paths)
 {
   return partition(paths.begin(), paths.end(), isReadWriteCppFile);
+}
+
+bool isDirectory(fs::path const& path)
+{
+  return fs::is_directory(path);
+}
+
+static Paths extractDirectories(Paths& paths)
+{
+  PathConstIterator sep = partition(paths.begin(), paths.end(), isDirectory);
+  Paths dirs;
+  copy(paths.cbegin(), sep, back_inserter(dirs));
+  paths.erase(paths.cbegin(), sep);
+  return dirs;
+}
+
+static Paths readWriteCppFiles(Paths& paths, Paths::const_reference dir)
+{
+  copy_if(fs::directory_iterator(dir),
+	  fs::directory_iterator(),
+	  back_inserter(paths),
+	  isReadWriteCppFile);
+  return paths;
+}
+
+void addCppFilesFromDirectories(Paths& paths)
+{
+  Paths const dirs = extractDirectories(paths);
+  Paths const srcs = accumulate(dirs.cbegin(), dirs.cend(), Paths(), readWriteCppFiles);
+  paths.insert(paths.end(), srcs.begin(), srcs.end());
 }
