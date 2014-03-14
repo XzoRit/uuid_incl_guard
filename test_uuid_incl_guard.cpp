@@ -74,11 +74,17 @@ TEST_CASE("generate incl guard shall return a random c/c++ conform guard symbol"
       std::string const g2 = generateInclGuard();
       CHECK(g1 != g2);
       std::string const g3 = generateInclGuard();
+      CHECK(g3 != g1);
+      CHECK(g3 != g2);
       std::string const g4 = generateInclGuard();
-      CHECK(g3 != g4);
+      CHECK(g4 != g1);
+      CHECK(g4 != g2);
+      CHECK(g4 != g3);
       std::string const g5 = generateInclGuard();
-      std::string const g6 = generateInclGuard();
-      CHECK(g5 != g6);
+      CHECK(g5 != g1);
+      CHECK(g5 != g2);
+      CHECK(g5 != g3);
+      CHECK(g5 != g4);
     }
 }
 
