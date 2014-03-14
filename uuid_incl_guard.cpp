@@ -74,7 +74,7 @@ int main(int argCount, char* args[])
       stringstream report;
       Paths paths = makePathsFromStrings(optFiles);
       addCppFilesFromDirectories(paths, optRecursive);
-      PathConstIterator sep = partitionByReadWriteCppFile(paths);
+      PathConstIterator sep = partitionByReadWriteFile(paths);
       if(sep != paths.cend())
 	{
 	  cerr << "processing aborted\nthese files are not valid:\n";

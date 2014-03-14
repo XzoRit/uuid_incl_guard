@@ -5,46 +5,32 @@
 #include <boost/filesystem.hpp>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <iterator>
 
 bool hasCopyrightNotice(std::string const& content);
 
 typedef boost::optional<std::string> MaybeInclGuard;
 MaybeInclGuard hasInclGuard(std::string const& content);
-
 bool isUuidInclGuard(std::string const& inclGuard);
-
 std::string generateInclGuard();
-
-boost::filesystem::path makePathFromString(std::string fileName);
 
 typedef std::vector<boost::filesystem::path> Paths;
 typedef Paths::const_iterator PathConstIterator;
 Paths makePathsFromStrings(std::vector<std::string> const& fileNames);
-
-bool isReadWriteFile(boost::filesystem::file_status const& fstat);
-
-bool isReadWriteFile(boost::filesystem::path const& path);
-
 bool isHeaderFile(boost::filesystem::path const& path);
+PathConstIterator partitionByReadWriteFile(Paths& paths);
+void addCppFilesFromDirectories(Paths& paths, bool recursive);
 
-bool isSourceFile(boost::filesystem::path const& path);
-
-bool isCppSourceFile(boost::filesystem::path const& path);
-
-bool isReadWriteCppFile(boost::filesystem::path const& path);
-
-PathConstIterator partitionByReadWriteCppFile(Paths& paths);
-
+static bool isReadWriteCppFile(boost::filesystem::path const& path);
 template<typename DirIter>
 static Paths readWriteCppFiles(Paths& paths, Paths::const_reference dir)
 {
-  copy_if(DirIter(dir),
-	  DirIter(),
-	  back_inserter(paths),
-	  isReadWriteCppFile);
+  std::copy_if(DirIter(dir),
+	       DirIter(),
+	       std::back_inserter(paths),
+	       isReadWriteCppFile);
   return paths;
 }
-
-void addCppFilesFromDirectories(Paths& paths, bool recursive);
 
 #endif

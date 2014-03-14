@@ -15,13 +15,19 @@ namespace xp = boost::xpressive;
 namespace fs = boost::filesystem;
 namespace uuid = boost::uuids;
 
+static bool isReadWriteFile(fs::path const& path);
+static bool isSourceFile(fs::path const& path);
+static bool isCppSourceFile(fs::path const& path);
+static Paths extractDirectories(Paths& paths);
+
+static boost::filesystem::path makePathFromString(std::string fileName);
+
 bool hasCopyrightNotice(string const& content)
 {
   xp::smatch what;
   return xp::regex_search(content, what, xp::sregex(xp::icase(xp::as_xpr("Copyright"))));
 }
 
-typedef boost::optional<string> MaybeInclGuard;
 MaybeInclGuard hasInclGuard(string const& content)
 {
   xp::sregex const reIfndef = xp::as_xpr("#ifndef") >> +xp::_s >> (xp::s1 = +xp::_w);
@@ -53,8 +59,6 @@ fs::path makePathFromString(string fileName)
   return fs::path(fileName);
 }
 
-typedef vector<fs::path> Paths;
-typedef Paths::const_iterator PathConstIterator;
 Paths makePathsFromStrings(vector<string> const& fileNames)
 {
   Paths paths(fileNames.size());
@@ -62,14 +66,30 @@ Paths makePathsFromStrings(vector<string> const& fileNames)
   return paths;
 }
 
-bool isReadWriteFile(fs::file_status const& fstat)
+bool isHeaderFile(boost::filesystem::path const& path)
 {
-  if(!fs::is_regular_file(fstat)) return false;
+  fs::path const ext = path.extension();
+  typedef fs::path::string_type StringType;
+  return (ext == StringType(".hpp")) || (ext == StringType(".h"));
+}
 
-  fs::perms permissions = fstat.permissions();
-  if(!((permissions & fs::owner_read) && (permissions & fs::owner_write))) return false;
+PathConstIterator partitionByReadWriteFile(Paths& paths)
+{
+  return partition(paths.begin(), paths.end(), isReadWriteFile);
+}
 
-  return true;
+void addCppFilesFromDirectories(Paths& paths, bool recursive)
+{
+  Paths const dirs = extractDirectories(paths);
+  Paths srcs;
+  if(recursive) srcs = accumulate(dirs.cbegin(), dirs.cend(), Paths(), readWriteCppFiles<fs::recursive_directory_iterator>);
+  else srcs = accumulate(dirs.cbegin(), dirs.cend(), Paths(), readWriteCppFiles<fs::directory_iterator>);
+  paths.insert(paths.end(), srcs.begin(), srcs.end());
+}
+
+bool isReadWriteCppFile(fs::path const& path)
+{
+  return isReadWriteFile(path) && isCppSourceFile(path);
 }
 
 bool isReadWriteFile(fs::path const& path)
@@ -77,19 +97,16 @@ bool isReadWriteFile(fs::path const& path)
   try
     {
       fs::file_status const fstat = fs::status(path);
-      return isReadWriteFile(fstat);
+      if(!fs::is_regular_file(fstat)) return false;
+
+      fs::perms permissions = fstat.permissions();
+      if(!((permissions & fs::owner_read) && (permissions & fs::owner_write))) return false;
+      return true;
     }
   catch(...)
     {
       return false;
     }
-}
-
-bool isHeaderFile(boost::filesystem::path const& path)
-{
-  fs::path const ext = path.extension();
-  typedef fs::path::string_type StringType;
-  return (ext == StringType(".hpp")) || (ext == StringType(".h"));
 }
 
 bool isSourceFile(boost::filesystem::path const& path)
@@ -102,16 +119,6 @@ bool isSourceFile(boost::filesystem::path const& path)
 bool isCppSourceFile(fs::path const& path)
 {
   return isHeaderFile(path) || isSourceFile(path);
-}
-
-bool isReadWriteCppFile(fs::path const& path)
-{
-  return isReadWriteFile(path) && isCppSourceFile(path);
-}
-
-PathConstIterator partitionByReadWriteCppFile(Paths& paths)
-{
-  return partition(paths.begin(), paths.end(), isReadWriteCppFile);
 }
 
 bool isDirectory(fs::path const& path)
@@ -128,11 +135,3 @@ static Paths extractDirectories(Paths& paths)
   return dirs;
 }
 
-void addCppFilesFromDirectories(Paths& paths, bool recursive)
-{
-  Paths const dirs = extractDirectories(paths);
-  Paths srcs;
-  if(recursive) srcs = accumulate(dirs.cbegin(), dirs.cend(), Paths(), readWriteCppFiles<fs::recursive_directory_iterator>);
-  else srcs = accumulate(dirs.cbegin(), dirs.cend(), Paths(), readWriteCppFiles<fs::directory_iterator>);
-  paths.insert(paths.end(), srcs.begin(), srcs.end());
-}

@@ -1,7 +1,5 @@
 #include "utils.hpp"
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 #include <string>
@@ -84,14 +82,6 @@ TEST_CASE("generate incl guard shall return a random c/c++ conform guard symbol"
     }
 }
 
-TEST_CASE("make path from string converts a string into a path object", "makePathFromString")
-{
-  std::string const s = "a sample string for a path object";
-  using boost::filesystem::path;
-  path const p = makePathFromString(s);
-  CHECK(p == s);  
-}
-
 TEST_CASE("make paths from strings converts a strings into a path objects", "makePathsFromStrings")
 {
   std::vector<std::string> strings;
@@ -102,52 +92,19 @@ TEST_CASE("make paths from strings converts a strings into a path objects", "mak
   CHECK(std::equal(strings.begin(), strings.end(), paths.begin()));
 }
 
-TEST_CASE("is read write file returns true if file is readable and writeable", "isReadWriteFile")
+TEST_CASE("is header file shall return true if given path points to a header file otherwise false", "isHeaderFile")
 {
-  using namespace boost::filesystem;
-  SECTION("is regular file, is readable by owner and is writeable")
-    {
-      file_status fs(regular_file, owner_read | owner_write);
-      CHECK(isReadWriteFile(fs));
-    }
-  SECTION("file not found, is readable by owner and is writeable")
-    {
-      file_status fs(file_not_found, owner_read | owner_write);
-      CHECK_FALSE(isReadWriteFile(fs));
-    }
-  SECTION("is directory file, is readable by owner and is writeable")
-    {
-      file_status fs(directory_file, owner_read | owner_write);
-      CHECK_FALSE(isReadWriteFile(fs));
-    }
-  SECTION("is regular file, no permissionss")
-    {
-      file_status fs(directory_file, no_perms);
-      CHECK_FALSE(isReadWriteFile(fs));
-    }
+  using boost::filesystem::path;
+  CHECK(isHeaderFile(path("this/is/a/header/file.h")));
+  CHECK(isHeaderFile(path("this/is/a/header/file.hpp")));
 }
 
-TEST_CASE("is cpp source file returns true is path either ends with .c, .h, .cpp or .hpp", "isCppSourceFile")
+TEST_CASE("partition by read write cpp files shall put all directories to front of the paths container", "partitionByReadWriteCppFile")
 {
-  using namespace boost::filesystem;
-  SECTION("ends with .c")
-    {
-      path const p = "this/is/a/test/path/to/a/c/source/file.c";
-      CHECK(isCppSourceFile(p));
-    }
-  SECTION("ends with .h")
-    {
-      path const p = "this/is/a/test/path/to/a/c/header/file.h";
-      CHECK(isCppSourceFile(p));
-    }
-  SECTION("ends with .cpp")
-    {
-      path const p = "this/is/a/test/path/to/a/cpp/source/file.cpp";
-      CHECK(isCppSourceFile(p));
-    }
-  SECTION("ends with .hpp")
-    {
-      path const p = "this/is/a/test/path/to/a/cpp/header/file.hpp";
-      CHECK(isCppSourceFile(p));
-    }
+  REQUIRE(false);
+}
+
+TEST_CASE("add cpp files shall add cpp/header files from given directory paths", "addCppFilesFromDirectory")
+{
+  REQUIRE(false);
 }
