@@ -76,59 +76,59 @@ int main(int argCount, char* args[])
       addCppFilesFromDirectories(paths, optRecursive);
       PathConstIterator sep = partitionByReadWriteFile(paths);
       if(sep != paths.cend())
-	{
-	  cerr << "processing aborted\nthese files are not valid:\n";
-	  copy(sep, paths.cend(), ostream_iterator<Paths::const_reference>(cerr, "\n"));
-	  return 1;
-	}
+        {
+          cerr << "processing aborted\nthese files are not valid:\n";
+          copy(sep, paths.cend(), ostream_iterator<Paths::const_reference>(cerr, "\n"));
+          return 1;
+        }
       string const copyright =
-	optCompany.empty() ? "" : replace_first_copy(copyrightTemplate,
-						     "<Company>",
-						     optCompany);
+        optCompany.empty() ? "" : replace_first_copy(copyrightTemplate,
+                                                     "<Company>",
+                                                     optCompany);
       for (PathConstIterator path = paths.cbegin(); path != paths.end(); ++path)
-	{
-	  fs::fstream file(*path);
-	  string content((istreambuf_iterator<char>(file)),
-			 istreambuf_iterator<char>());
-	  if(isHeaderFile(*path))
-	    {
-	      string const inclGuardId = generateInclGuard();
-	      if (MaybeInclGuard const guard = hasInclGuard(content))
-		{
-		  if(optExchangeUuid || !isUuidInclGuard(guard.get()))
-		    {
-		      replace_all(content, guard.get(), inclGuardId);
-		      report << (*path) << ": " << "replaced " << guard.get() << " with " << inclGuardId << '\n';
-		    }
-		}
-	      else
-		{
-		  string const newInclGuard = replace_all_copy(inclGuardTemplate,
-							       "<Id>",
-							       inclGuardId);
-		  content.insert(0, newInclGuard);
-		  content.append(endIfTemplate);
-		  report << (*path) << ": has new include guard " << inclGuardId << '\n';
-		}
-	    }
-	  if (!copyright.empty() && !hasCopyrightNotice(content))
-	    {
-	      content.insert(0, copyright);
-	      report << (*path) << ": has new copyright notice with company " << optCompany << '\n';
-	    }
-	  file.seekg(0);
-	  file << content;
-	  file.flush();
-	}
+        {
+          fs::fstream file(*path);
+          string content((istreambuf_iterator<char>(file)),
+                         istreambuf_iterator<char>());
+          if(isHeaderFile(*path))
+            {
+              string const inclGuardId = generateInclGuard();
+              if (MaybeInclGuard const guard = hasInclGuard(content))
+                {
+                  if(optExchangeUuid || !isUuidInclGuard(guard.get()))
+                    {
+                      replace_all(content, guard.get(), inclGuardId);
+                      report << (*path) << ": " << "replaced " << guard.get() << " with " << inclGuardId << '\n';
+                    }
+                }
+              else
+                {
+                  string const newInclGuard = replace_all_copy(inclGuardTemplate,
+                                                               "<Id>",
+                                                               inclGuardId);
+                  content.insert(0, newInclGuard);
+                  content.append(endIfTemplate);
+                  report << (*path) << ": has new include guard " << inclGuardId << '\n';
+                }
+            }
+          if (!copyright.empty() && !hasCopyrightNotice(content))
+            {
+              content.insert(0, copyright);
+              report << (*path) << ": has new copyright notice with company " << optCompany << '\n';
+            }
+          file.seekg(0);
+          file << content;
+          file.flush();
+        }
       cout << report.str();
       return 0;
     }
   if(vm.count("generate"))
     {
       for(unsigned int i = 0; i < optGenNUuids; ++i)
-	{
-	  cout << generateInclGuard() << '\n';
-	}
+        {
+          cout << generateInclGuard() << '\n';
+        }
       return 0;
     }
 
