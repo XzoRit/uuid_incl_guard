@@ -111,7 +111,7 @@ int main(int argCount, char* args[])
                   report << (*path) << ": has new include guard " << inclGuardId << '\n';
                 }
             }
-          if (!copyright.empty() && !hasCopyrightNotice(content))
+          if (!(copyright.empty() || hasCopyrightNotice(content)))
             {
               content.insert(0, copyright);
               report << (*path) << ": has new copyright notice with company " << optCompany << '\n';
