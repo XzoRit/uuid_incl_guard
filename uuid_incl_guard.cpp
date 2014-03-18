@@ -2,6 +2,8 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/date_time/gregorian/gregorian_types.hpp>
+#include <boost/lexical_cast.hpp>
 #include <string>
 #include <streambuf>
 #include <sstream>
@@ -12,10 +14,11 @@ using namespace boost;
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
+namespace date = boost::gregorian;
 
 std::string const copyrightTemplate =
   "/*\n"
-  " * Copyright <Company>\n"
+  " * Copyright (c) <Company> <Year>\n"
   " * All rights reserved. Company confidential.\n"
   " */\n\n";
 
@@ -81,10 +84,16 @@ int main(int argCount, char* args[])
           copy(sep, paths.cend(), ostream_iterator<Paths::const_reference>(cerr, "\n"));
           return 1;
         }
+      date::greg_year year = date::day_clock::local_day().year();
       string const copyright =
-        optCompany.empty() ? "" : replace_first_copy(copyrightTemplate,
+        optCompany.empty() ? "" : replace_first_copy(
+						     replace_first_copy(
+									copyrightTemplate,
+									"<Year>",
+									lexical_cast<string>(year)),
                                                      "<Company>",
                                                      optCompany);
+
       for (PathConstIterator path = paths.cbegin(); path != paths.end(); ++path)
         {
           fs::fstream file(*path);
