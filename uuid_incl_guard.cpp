@@ -31,7 +31,6 @@ string const endIfTemplate = "\n#endif\n";
 
 int main(int argCount, char* args[])
 {
-  bool optExchangeUuid = true;
   string optCompany = "";
   unsigned int optGenNUuids = 0;
   vector<string> optFiles;
@@ -50,9 +49,8 @@ int main(int argCount, char* args[])
     ("company", po::value<string>(&optCompany),
      "name of company for copyright notice. "
      "if it is not specified no copyright notice is placed in files")
-    ("exchange_uuid", po::value<bool>(&optExchangeUuid)->default_value(true),
-     "if true exchange existing uuid include guards "
-     "if false do not exchange uuids.")
+    ("do_not_exchange_uuid",
+     "do not exchange existing uuid include guards")
     ("recursive",
      "scan directories recursively for source files")
     ("in", po::value<vector<string> >(&optFiles),
@@ -67,6 +65,7 @@ int main(int argCount, char* args[])
   po::notify(vm);
 
   bool const optRecursive = vm.count("recursive");
+  bool const optExchangeUuid = !vm.count("do_not_exchange_uuid");
   if(vm.count("help"))
     {
       cout << desc << '\n';
