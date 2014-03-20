@@ -54,7 +54,7 @@ int main(int argCount, char* args[])
      "if true exchange existing uuid include guards "
      "if false do not exchange uuids.")
     ("recursive",
-     "if true given directories are scanned for source files recursivly")
+     "scan directories recursively for source files")
     ("in", po::value<vector<string> >(&optFiles),
      "place include guards and copyright notice into these files. "
      "if a directory is given it is scanned for source files and these are processed.");
