@@ -25,7 +25,8 @@ static boost::filesystem::path makePathFromString(std::string fileName);
 bool hasCopyrightNotice(string const& content)
 {
   xp::smatch what;
-  return xp::regex_search(content, what, xp::sregex(xp::icase(xp::as_xpr("Copyright"))));
+  xp::sregex const reCopyright = xp::icase(xp::as_xpr("* Copyright (c) ")) >> +~xp::_d >> xp::repeat<4>(xp::_d);
+  return xp::regex_search(content, what, reCopyright);
 }
 
 MaybeInclGuard hasInclGuard(string const& content)

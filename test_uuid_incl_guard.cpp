@@ -8,8 +8,8 @@
 
 TEST_CASE("search for copyright notice is case insensitive", "hasCopyrightNotice")
 {
-  CHECK(hasCopyrightNotice("Copyright"));
-  CHECK(hasCopyrightNotice("copyright"));
+  CHECK(hasCopyrightNotice("* Copyright (c) name of company 1998"));
+  CHECK(hasCopyrightNotice("* copyright (c) name of company 2003"));
 }
 
 TEST_CASE("has include guard returns found guard", "hasInclGuard")
