@@ -35,7 +35,6 @@ int main(int argCount, char* args[])
   string optCompany = "";
   unsigned int optGenNUuids = 0;
   vector<string> optFiles;
-  bool optRecursive = false;
   po::options_description desc("usage:\n"
                                "\tuuid_incl_guard [options] files\n"
                                "description:\n"
@@ -54,7 +53,7 @@ int main(int argCount, char* args[])
     ("exchange_uuid", po::value<bool>(&optExchangeUuid)->default_value(true),
      "if true exchange existing uuid include guards "
      "if false do not exchange uuids.")
-    ("recursive", po::value<bool>(&optRecursive)->default_value(false),
+    ("recursive",
      "if true given directories are scanned for source files recursivly")
     ("in", po::value<vector<string> >(&optFiles),
      "place include guards and copyright notice into these files. "
@@ -67,6 +66,7 @@ int main(int argCount, char* args[])
   po::store(po::command_line_parser(argCount, args).options(desc).positional(p).run(), vm);
   po::notify(vm);
 
+  bool const optRecursive = vm.count("recursive");
   if(vm.count("help"))
     {
       cout << desc << '\n';
