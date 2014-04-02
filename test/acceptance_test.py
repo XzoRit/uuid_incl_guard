@@ -51,6 +51,8 @@ class TestUuidInclGuard(unittest.TestCase):
                                     \n""".format(match.group(1)), re.VERBOSE | re.MULTILINE)
         match = reInclGuard.match(fileContent)
         self.assertIsNotNone(match)
+        self.assertTrue(fileContent.endswith("\n#endif\n"))
+        fh.close()
 
 if __name__ == '__main__':
     unittest.main()
