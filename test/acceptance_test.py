@@ -54,5 +54,20 @@ class TestUuidInclGuard(unittest.TestCase):
         self.assertTrue(fileContent.endswith("\n#endif\n"))
         fh.close()
 
+    def test_whenCalledWithCompanynameCopyrightNoticeIsGeneratedIntoGivenFile(self):
+        company = "Xzr"
+        output = subprocess.check_output([self.__uuid_incl_guard, "--company", company, "--in", self.__simple_cpp_header])
+        reOutput = r'"{}": has new copyright notice with company {}'.format(self.__simple_cpp_header, company)
+        match = re.search(reOutput, output)
+        self.assertIsNotNone(match)
+        fh = open(self.__simple_cpp_header, "r")
+        fileContent = fh.read()
+        self.assertTrue(fileContent.startswith(
+"""/*
+ * Copyright (c) {} 2014
+ * All rights reserved. Company confidential.
+ */
+""".format(company)))
+
 if __name__ == '__main__':
     unittest.main()
