@@ -63,11 +63,10 @@ class TestUuidInclGuard(unittest.TestCase):
         fh = open(self.__simple_cpp_header, "r")
         fileContent = fh.read()
         self.assertTrue(fileContent.startswith(
-"/*\n"
-""" * Copyright (c) {} 2014
- * All rights reserved. Company confidential.
- */
-""".format(company)))
+            "/*\n"
+            " * Copyright (c) {} 2014\n"
+            " * All rights reserved. Company confidential.\n"
+            " */\n".format(company)))
 
 if __name__ == '__main__':
     unittest.main()
