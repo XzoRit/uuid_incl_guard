@@ -63,8 +63,8 @@ class TestUuidInclGuard(unittest.TestCase):
         fh = open(self.__simple_cpp_header, "r")
         fileContent = fh.read()
         self.assertTrue(fileContent.startswith(
-"""/*
- * Copyright (c) {} 2014
+"/*\n"
+""" * Copyright (c) {} 2014
  * All rights reserved. Company confidential.
  */
 """.format(company)))
