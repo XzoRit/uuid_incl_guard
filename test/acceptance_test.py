@@ -21,9 +21,15 @@ class TestUuidInclGuard(unittest.TestCase):
                  "  Test1& operator=(Test1 const&);\n"
                  "};\n")
         fh.close()
+        self.__simple_cpp_source = "simple_cpp_source.cpp"
+        fh = open(self.__simple_cpp_source, "w")
+        fh.write("Test1::Test()\n"
+                 "{}\n")
+        fh.close()
 
     def tearDown(self):
         os.remove(self.__simple_cpp_header)
+        os.remove(self.__simple_cpp_source)
 
     def test_whenCalledWithoutArgsPrintsOneIncludeGuard(self):
         inclGuard = subprocess.check_output([self.__uuid_incl_guard])
@@ -61,6 +67,20 @@ class TestUuidInclGuard(unittest.TestCase):
         match = re.search(reOutput, output)
         self.assertIsNotNone(match)
         fh = open(self.__simple_cpp_header, "r")
+        fileContent = fh.read()
+        self.assertTrue(fileContent.startswith(
+            "/*\n"
+            " * Copyright (c) {} 2014\n"
+            " * All rights reserved. Company confidential.\n"
+            " */\n".format(company)))
+
+    def test_whenCalledWithInCppFileAndCompanynameCopyrightNoticeIsGeneratedIntoGivenFile(self):
+        company = "Xzr"
+        output = subprocess.check_output([self.__uuid_incl_guard, "--company", company, "--in", self.__simple_cpp_source])
+        reOutput = r'"{}": has new copyright notice with company {}'.format(self.__simple_cpp_source, company)
+        match = re.search(reOutput, output)
+        self.assertIsNotNone(match)
+        fh = open(self.__simple_cpp_source, "r")
         fileContent = fh.read()
         self.assertTrue(fileContent.startswith(
             "/*\n"
