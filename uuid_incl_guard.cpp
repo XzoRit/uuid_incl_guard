@@ -18,8 +18,7 @@ namespace date = boost::gregorian;
 
 std::string const copyrightTemplate =
   "/*\n"
-  " * Copyright (c) <Company> <Year>\n"
-  " * All rights reserved. Company confidential.\n"
+  " * Copyright <Year> <Company> and Licensors. All Rights Reserved. Company Confidential.\n"
   " */\n\n";
 
 string const inclGuardTemplate = 
