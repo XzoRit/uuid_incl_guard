@@ -5,8 +5,6 @@ project(uuid_incl_guard)
 include_directories("/opt/local/include")
 link_directories("/opt/local/lib")
 
-add_compile_options(-g)
-
 set (${PROJECT_NAME}_headers "")
 set (${PROJECT_NAME}_sources "uuid_incl_guard.cpp" "utils.cpp")
 
