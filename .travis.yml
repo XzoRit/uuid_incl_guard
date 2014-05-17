@@ -2,6 +2,8 @@ language: cpp
 compiler:
   - gcc
   - clang
+before_install:
+  - brew install boost
 install:
   - cmake CMakeLists.txt
   - make
