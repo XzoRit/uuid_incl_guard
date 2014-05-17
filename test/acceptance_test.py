@@ -70,8 +70,7 @@ class TestUuidInclGuard(unittest.TestCase):
         fileContent = fh.read()
         self.assertTrue(fileContent.startswith(
             "/*\n"
-            " * Copyright (c) {} 2014\n"
-            " * All rights reserved. Company confidential.\n"
+            " * Copyright 2014 {} and Licensors. All Rights Reserved. Company Confidential.\n"
             " */\n".format(company)))
 
     def test_whenCalledWithInCppFileAndCompanynameCopyrightNoticeIsGeneratedIntoGivenFile(self):
@@ -84,8 +83,7 @@ class TestUuidInclGuard(unittest.TestCase):
         fileContent = fh.read()
         self.assertTrue(fileContent.startswith(
             "/*\n"
-            " * Copyright (c) {} 2014\n"
-            " * All rights reserved. Company confidential.\n"
+            " * Copyright 2014 {} and Licensors. All Rights Reserved. Company Confidential.\n"
             " */\n".format(company)))
 
 if __name__ == '__main__':
