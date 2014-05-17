@@ -9,3 +9,6 @@ install:
   - make
 script:
   - test_uuid_incl_guard
+os:
+  - osx
+
