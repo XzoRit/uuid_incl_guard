@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 
-include(CMakePrintHelpers)
-
 project(uuid_incl_guard)
 
 include_directories("/opt/local/include")
