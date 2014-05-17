@@ -2,4 +2,11 @@ language: cpp
 compiler:
   - gcc
   - clang
-script: make
+install:
+  - cmake -Bbuild CMakeLists.txt
+  - cd build
+  - make
+  - cd ..
+script:
+  - cd build
+  - test_uuid_incl_guard
