@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <numeric>
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -22,11 +23,20 @@ static Paths extractDirectories(Paths& paths);
 
 static boost::filesystem::path makePathFromString(std::string fileName);
 
-bool hasCopyrightNotice(string const& content)
+bool hasCopyrightNotice(string const& content, string const& company)
 {
-  xp::smatch what;
-  xp::sregex const reCopyright = xp::icase(xp::as_xpr("* Copyright (c) ")) >> +~xp::_d >> xp::repeat<4>(xp::_d);
-  return xp::regex_search(content, what, reCopyright);
+  xp::sregex const reCopyright =
+    xp::as_xpr(" * Copyright ")
+    >> xp::repeat<4>(xp::_d) >> !('-' >> xp::repeat<4>(xp::_d))
+    >> " " >> company
+    >> " and Licensors. All Rights Reserved. Company Confidential.";
+  xp::sregex_token_iterator current(content.begin(), content.end(), xp::_ln, -1);
+  xp::sregex_token_iterator end;
+  for(; current != end; ++current)
+    {
+      if(xp::regex_match(*current, reCopyright)) return true;
+    }
+  return false;
 }
 
 MaybeInclGuard hasInclGuard(string const& content)

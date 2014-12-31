@@ -8,6 +8,7 @@
 #include <streambuf>
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 using namespace boost;
@@ -118,10 +119,12 @@ int main(int argCount, char* args[])
                   report << (*path) << ": has new include guard " << inclGuardId << '\n';
                 }
             }
-          if (!(copyright.empty() || hasCopyrightNotice(content)))
+          if (!(copyright.empty() || hasCopyrightNotice(content, optCompany)))
             {
               content.insert(0, copyright);
-              report << (*path) << ": has new copyright notice with company " << optCompany << '\n';
+              report << (*path)
+		     << ": has new copyright notice with company "
+		     << optCompany << '\n';
             }
           file.seekg(0);
           file << content;

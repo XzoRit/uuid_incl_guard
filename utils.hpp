@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <iterator>
 
-bool hasCopyrightNotice(std::string const& content);
+bool hasCopyrightNotice(std::string const& content, std::string const& company);
 
 typedef boost::optional<std::string> MaybeInclGuard;
 MaybeInclGuard hasInclGuard(std::string const& content);
