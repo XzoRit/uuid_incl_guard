@@ -8,7 +8,7 @@ import os
 class TestUuidInclGuard(unittest.TestCase):
 
     def setUp(self):
-        self.__uuid_incl_guard = "../build/uuid_incl_guard"
+        self.__uuid_incl_guard = "../uuid_incl_guard"
         self.__reUuidInclGuard = r"INCL_[\da-f]{8}_(?:[\da-f]{4}_){3}[\da-f]{8}"
         self.__simple_cpp_header = "simple_cpp_header.hpp"
         fh = open(self.__simple_cpp_header, "w")
